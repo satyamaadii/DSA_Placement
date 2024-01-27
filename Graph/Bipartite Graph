@@ -1,0 +1,58 @@
+https://www.geeksforgeeks.org/problems/bipartite-graph/1
+Color graph with 2 colors such that no adjacent nodes have same color & always even length, 
+purely linear graph is always bipartite
+1- DFS
+bool dfs(vector<int>adj[], vector<int>&color,int start,int col){
+          color[start]=col;
+          bool flag=true;
+          for(auto i: adj[start]){
+              if(color[i]==-1){
+                  flag=dfs(adj,color,i,1-col);
+                  if(!flag) return false;
+              }
+              else if(color[i]==color[start])
+                   return false;
+          }
+          return true;
+    }
+	bool isBipartite(int v, vector<int>adj[]){
+	     vector<int>color(v,-1);
+	     int col=0;
+	     for(int i=0;i<v;i++){
+	         if(color[i]==-1){
+	             if(!dfs(adj,color,i,col)) return false;
+	         }
+	     }
+	     return true;
+	}
+
+2- BFS
+bool check(int start,vector<int>&color,vector<int>adj[]){
+      queue<int>q;
+	    q.push(start);
+	    color[start]=0;
+	    while(!q.empty()){
+	     int node=q.front();
+	     q.pop();
+	     for(auto itr:adj[node]){
+	        if(color[itr]==-1){
+	            color[itr] = !color[node];
+	            q.push(itr);
+	          }
+	        else if(color[itr]==color[node]){
+	            return false;
+	          }
+	      }
+	    }
+	return true;
+  }
+bool isBipartite(int v, vector<int>adj[]){
+	 vector<int>color(v,-1);
+   for(int i=0;i<v;i++){
+	    if(color[i]==-1 && check(i,color,adj)==false)  return false;
+	}
+	return true;
+}
+
+TC - O(V+2E)
+SC - O(V)
