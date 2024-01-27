@@ -1,0 +1,36 @@
+DFS - Depth First Search / Recursion
+
+void dfs(int node, vector<int>&visited, unordered_map<int,set<int>>&adj, vector<int>&composite){
+    composite.push_back(node);
+    visited[node]=1; 
+   for(auto neigh : adj[node]){
+       if(!visited[neigh]){
+           dfs(neigh,visited,adj,composite);
+       }
+   }
+}
+
+vector<vector<int>> depthFirstSearch(int vertices, int EDGE, vector<vector<int>> &edges){
+    unordered_map<int,set<int>>adj;
+    for(int i=0;i<edges.size();i++){
+        int u=edges[i][0], v=edges[i][1];
+        adj[u].insert(v);
+        adj[v].insert(u);
+    }
+    vector<int>visited(vertices,0);
+    vector<vector<int>>ans;
+    
+    for(int i=0;i<vertices;i++){
+        if(!visited[i]){
+            vector<int>composite;
+            dfs(i,visited,adj,composite);
+            ans.push_back(composite);
+        }
+    }
+    return ans;
+}
+
+SC - O(3N) = O(N) [visited + adjacency + recursive stack space)
+TC - O(N) + O(2E) [Undirected Graph]
+     O(N) + O(E)  [Directed Graph]
+
