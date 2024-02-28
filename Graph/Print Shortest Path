@@ -1,0 +1,49 @@
+https://www.geeksforgeeks.org/problems/shortest-path-in-weighted-undirected-graph/1?utm_source=youtube&utm_medium=collab_striver_ytdescription&utm_campaign=shortest-path-in-weighted-undirected-graph
+vector<int> shortestPath(int n, int m, vector<vector<int>>& edges) {
+       //create adjacency list
+       vector<pair<int,int>>adj[n+1];
+       for(int i=0;i<edges.size();i++){
+           int u=edges[i][0];
+           int v=edges[i][1];
+           int wt=edges[i][2];
+           adj[u].push_back({v,wt});
+           adj[v].push_back({u,wt});
+       }
+       vector<int>parent(n+1);
+       for(int i=0;i<=n;i++){
+           parent[i]=i;
+       }
+       vector<int>dist(n+1,1e9);
+       dist[1]=0;
+       priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>pq;  //min heap
+       //dist node
+       pq.push({0,1});
+       while(!pq.empty()){
+           int far=pq.top().first;
+           int node=pq.top().second;
+           pq.pop();
+           for(auto it: adj[node]){
+               int edgeWt=it.second;
+               int neigh=it.first;
+               if(dist[node]+edgeWt<dist[neigh]){
+                   dist[neigh]=dist[node]+edgeWt;
+                   parent[neigh]=node;
+                   pq.push({dist[neigh],neigh});
+               }
+           }
+       }
+       if(dist[n]==1e9)  return {-1};
+       int curr=n;
+       vector<int>vec;
+       while(parent[curr]!=curr){
+           vec.push_back(curr);
+           curr=parent[curr];
+       }
+       if(curr!=1)  return {-1};
+       vec.push_back(1);
+       reverse(vec.begin(),vec.end());
+       return vec;
+    }
+
+TC - O(E LOGV)
+SC - O(V)
