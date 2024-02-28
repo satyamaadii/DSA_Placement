@@ -1,0 +1,126 @@
+1 Path With Minimum Effort 
+int MinimumEffort(vector<vector<int>>& heights) {
+        int n=heights.size();
+        int m=heights[0].size();
+        vector<vector<int>>dist(n,vector<int>(m,1e9));
+        dist[0][0]=0;
+        priority_queue<pair<int,pair<int,int>>, vector<pair<int,pair<int,int>>>, greater<pair<int,pair<int,int>>>>pq;
+        int delrow[]={-1,0,1,0};
+        int delcol[]={0,1,0,-1};
+        pq.push({0,{0,0}});
+        while(!pq.empty()){
+            auto it=pq.top();
+            pq.pop();
+            int distance=it.first;
+            int row=it.second.first;
+            int col=it.second.second;
+            if(row==n-1&&col==m-1)  return distance;
+            for(int i=0;i<4;i++){
+                int newr=row+delrow[i];
+                int newc=col+delcol[i];
+                if(newr>=0&&newr<n&&newc>=0&&newc<m){
+                    int effort=max(abs(heights[newr][newc]-heights[row][col]),distance);
+                    if(effort<dist[newr][newc]){
+                        dist[newr][newc]=effort;
+                        pq.push({dist[newr][newc],{newr,newc}});
+                    }
+                }
+            }
+        }
+        return -1;
+  }
+
+2 Cheapest Flights Within K Stops
+we did not implememt prioirty queue here since it focuses only on minimizing the cost, but we need to reach destination with minimum cost, not only min cost, so use queue since pq will miss many cases 
+int CheapestFLight(int n,vector<vector<int>>&flights,int src,int dst,int k){
+        if(src==dst) return 0;
+        vector<pair<int,int>>adj[n];
+        for(auto it: flights){
+            adj[it[0]].push_back({it[1],it[2]});
+        }
+        //steps destination cost
+        vector<int>price(n,1e9);
+        queue<pair<int,pair<int,int>>>q;
+        q.push({0,{src,0}});
+        price[src]=0;
+        while(q.size()){
+            auto it=q.front();
+            q.pop();
+            int steps=it.first;
+            int node=it.second.first;
+            int cost=it.second.second;
+            if(steps>k) continue;
+            for(auto x: adj[node]){
+                int dest=x.first;
+                int fare=x.second;
+                if(cost+fare<price[dest]&&steps<=k){
+                   price[dest]=cost+fare;
+                   q.push({steps+1,{dest,price[dest]}});
+                }
+            }
+        }
+        if(price[dst]==1e9)  return -1;
+        return price[dst];
+    }
+
+3 Minimum Multiplications to reach End 
+int minimumMultiplications(vector<int>& arr, int start, int end) {
+        if(start==end)  return 0;
+        vector<long long>dest(1e5+1,INT_MAX);
+        dest[start]=0;
+        //steps node
+        queue<pair<long long,long long>>q;
+        q.push({0,start});
+        while(!q.empty()){
+            auto it=q.front();
+            q.pop();
+            long long step=it.first;
+            long long node=it.second;
+            if(node==end) return step;
+            for(auto x: arr){
+                long long newnode=(x*node)%100000;
+                if(step+1<dest[newnode]){
+                    dest[newnode]=step+1;
+                    q.push({dest[newnode],newnode});
+                }
+            }
+        }
+        return -1;
+    }
+
+4 Number of Ways to Arrive at Destination
+int countPaths(int n, vector<vector<int>>&roads) {
+        long long mod=(long long)(1e18+7);
+        //adjacency list
+        vector<pair<long long,long long>>adj[n];
+        for(auto it: roads){
+            adj[it[0]].push_back({it[1],it[2]%mod});
+            adj[it[1]].push_back({it[0],it[2]%mod});
+        }
+        vector<long long>dist(n,INT_MAX), ways(n,0);
+        //time destination
+        priority_queue<pair<long long,long long>,vector<pair<long long,long long>>,greater<pair<long long,long long>>>pq;
+        pq.push({0,0});
+        dist[0]=0;
+        //by default 0to0 is 1 way so take 1 way
+        ways[0]=1;
+        while(!pq.empty()){
+            auto it=pq.top();
+            pq.pop();
+            long long distance=it.first;
+            long long node=it.second;
+            for(auto x:adj[node]){
+                long long newnode=x.first;
+                long long newdist=x.second;
+                if(newdist+distance<dist[newnode]){
+                    ways[newnode]=ways[node]%mod;
+                    dist[newnode]=newdist+distance;
+                    pq.push({dist[newnode],newnode});
+                }
+                else if(newdist+distance==dist[newnode]){
+                     ways[newnode]=(ways[newnode]+ways[node])%mod;
+                }
+            }
+        }
+        return ways[n-1]%mod;
+    }
