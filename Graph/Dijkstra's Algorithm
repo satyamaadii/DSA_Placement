@@ -1,0 +1,69 @@
+DIJKSTRA ALGO - FIND SHORTEST PATH FROM SOURCE TO ALL OTHER NODES IN A GRAPH HAVING NO NEGATIVE EDGES 
+Given a weighted graph and a source vertex in the graph, find the shortest paths from the source to all the other vertices in the given graph.
+Note: The given graph does not contain any negative edge.
+
+M-1 USING PRIOIRTY QUEUE
+vector <int> dijkstra(int V, vector<vector<int>> adj[], int S){
+        vector<int>dist(V,INT_MAX);
+        dist[S]=0;
+        priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>pq;
+        pq.push({0,S});    //dist node
+        while(!pq.empty()){
+            int dis=pq.top().first;
+            int node=pq.top().second;
+            pq.pop();
+            for(auto it: adj[node]){
+                int edgeWeight=it[1];
+                int neighNode=it[0];
+                if(dist[node]+edgeWeight<dist[neighNode]){
+                    dist[neighNode]=dist[node]+edgeWeight;
+                    pq.push({dist[neighNode],neighNode});
+                }
+            }
+        }
+        
+        for(int i=0;i<V;i++){
+            if(dist[i]==INT_MAX)   dist[i]=-1;
+        }
+        return dist;
+  }
+TC - E LOGV
+SC -  V
+
+M-2  USING SET 
+set erase already existing paths , it improves time complexity very minor, depends on graph, st.erase(LOG operation) 
+saving some time in iteration but increase time complexoty by logarithmic oprn of st.erase() , hardly mionr difference, depends upon graph
+
+vector <int> dijkstra(int V, vector<vector<int>> adj[], int S){
+        vector<int>dist(V,INT_MAX);
+        //USING THE ORDERED SET - STORES DATA IN ASCENDING ORDER 
+        set<pair<int,int>>st;
+        dist[S]=0;
+        st.insert({S,0});  // NODE DIST 
+        while(!st.empty()){
+            auto it=*(st.begin());
+            int node=it.first;
+            int distance=it.second;
+            st.erase(it);
+            
+            for(auto itr: adj[node]){
+                int neighbour=itr[0];
+                int edgeWeight=itr[1];
+                
+                if(dist[node]+edgeWeight<dist[neighbour]){
+                    if(dist[neighbour]!=INT_MAX){
+		                 st.erase({dist[neighbour],neighbour});     
+		             }
+                    dist[neighbour]=dist[node]+edgeWeight;
+                    st.insert({neighbour,edgeWeight});
+                }
+            }
+        }
+        return dist;
+    }
+
+Incase of PQ, the maximum heap size can go upto E = number of edges, leading to complexity = O(E*logE).
+Incase of set, the maximum set size can go upto V =. number of vertices, leading to complexity = O(E*logV).
+
+The time complexity remains O(E * LogV) as there will be at most O(E) vertices in the priority queue and O(logE) is the same as O(logV)
+TC Proof - https://youtube.com/watch?v=3dINsjyfooY&list=PLgUwDviBIf0oE3gA41TKO2H5bHpPd7fzn&index=34&ab_channel=takeUforward
