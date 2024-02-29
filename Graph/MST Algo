@@ -1,0 +1,7 @@
+Spanning Tree - in an undirected weighted graph, n nodes & m edges, a tree which have n nodes and n-1 edges and all nodes are reachable from each other
+MST - spanning tree with minimum edges sum 
+
+1) Prim's Algo
+
+
+
