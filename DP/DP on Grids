@@ -1,0 +1,241 @@
+1) Grid Unique Paths
+Memoization
+int solve(int r, int c, vector<vector<int>>&dp){
+    if(r==0 && c==0) return 1;
+    if(r<0 || c<0) return 0;
+    if(dp[r][c]!=-1) return dp[r][c];
+    int up=solve(r-1,c,dp);
+    int left=solve(r,c-1,dp);
+    return dp[r][c]=up+left;  
+}
+int uniquePaths(int m, int n) {
+  vector<vector<int>>dp(m,vector<int>(n,-1));
+	return solve(m-1,n-1,dp);
+}
+TC - O(M*N)
+SC - O(M*N) + stack space
+
+Tabulation
+int uniquePaths(int m, int n) {
+    vector<vector<int>>dp(m,vector<int>(n,0));
+    dp[0][0]=1;
+    for(int i=0;i<m;i++){
+        for(int j=0;j<n;j++){
+            if(i==0 && j==0) dp[i][j]=1;
+            else if(i==0) dp[i][j]=1;
+            else if(j==0) dp[i][j]=1;
+            else {
+              dp[i][j] = dp[i-1][j] + dp[i][j-1];
+            }
+        }
+    }
+	return dp[m-1][n-1];
+}
+TC - O(M*N)
+SC - O(M*N)
+
+Space Optimization
+int uniquePaths(int m, int n) {
+    vector<int>prev(n);
+    for(int i=0;i<m;i++){
+        vector<int>curr(n);
+        for(int j=0;j<n;j++){
+            if(i==0 && j==0) curr[j]=1;
+            else if(i==0) curr[j]=1;
+            else if(j==0) curr[j]=1;
+            else {
+              curr[j] = prev[j] + curr[j-1];
+            }
+        }
+        prev=curr;
+    }
+	return prev[n-1];
+}
+TC - O(M*N)
+SC - O(N)
+
+
+2) Grid Unique Paths 2
+Memoization
+int solve(int r, int c, vector<vector<int>>&dp, vector<vector<int>>&mat){
+    if(r==0 && c==0) return 1;
+    if(r<0 || c<0) return 0;
+    if(mat[r][c]==-1) return dp[r][c]=0;
+    if(dp[r][c]!=-1) return dp[r][c]%mod;
+    int up=solve(r-1,c,dp,mat)%mod;
+    int left=solve(r,c-1,dp,mat)%mod;
+    return dp[r][c]=(up%mod+left%mod)%mod;  
+}
+int mazeObstacles(int m, int n, vector<vector<int>>&mat){
+  vector<vector<int>>dp(m,vector<int>(n,-1));
+	return solve(m-1,n-1,dp,mat)%mod;
+}
+TC - O(M*N)
+SC - O(M*N) + stack space
+
+Tabulation
+int mazeObstacles(int m, int n, vector<vector<int>>&mat){
+    vector<vector<int>>dp(m,vector<int>(n,0));
+    for(int i=0;i<m;i++){
+        for(int j=0;j<n;j++){
+           if(mat[i][j]==-1) {dp[i][j]=0; continue;}
+           if(i==0 && j==0) dp[i][j]=1;
+           else if(i==0) dp[i][j]=dp[i][j-1]%mod;
+           else if(j==0) dp[i][j]=dp[i-1][j]%mod;
+           else{
+               dp[i][j]=(dp[i-1][j]%mod+dp[i][j-1]%mod)%mod;
+           }
+        }
+    }
+	return dp[m-1][n-1]%mod;
+}
+TC - O(M*N)
+SC - O(M*N)
+
+Space Optimization
+int mazeObstacles(int m, int n, vector<vector<int>>&mat){
+    vector<int>prev(n);
+    for(int i=0;i<m;i++){
+        vector<int>curr(n);
+        for(int j=0;j<n;j++){
+           if(mat[i][j]==-1) {curr[j]=0; continue;}
+           if(i==0 && j==0) curr[j]=1;
+           else if(i==0) curr[j]=curr[j-1]%mod;
+           else if(j==0) curr[j]=prev[j]%mod;
+           else{
+               curr[j]=(prev[j]%mod+curr[j-1]%mod)%mod;
+           }
+        }
+        prev=curr;
+    }
+	return prev[n-1]%mod;
+}
+TC - O(M*N)
+SC - O(N)
+
+3) Minimum Path Sum
+Memoization
+int func(int i,int j,vector<vector<int>>&grid,vector<vector<int>>&dp){
+        if(i==0 && j==0)  return grid[i][j];
+        if(i<0 || j<0)    return   1e9;
+        if(dp[i][j]!=-1)  return dp[i][j];
+        int up=func(i-1,j,grid,dp);
+        int left=func(i,j-1,grid,dp);
+        return dp[i][j]=grid[i][j]+min(up,left);
+    } 
+int minSumPath(vector<vector<int>> &grid) {
+        int n=grid.size();
+        int m=grid[0].size();
+        vector<vector<int>>dp(n,vector<int>(m,-1));
+        return func(n-1,m-1,grid,dp);
+}
+TC - O(N*M)
+SC - O(N*M) + stack space
+
+Tabulation
+int minSumPath(vector<vector<int>> &grid) {
+        int n=grid.size();
+        int m=grid[0].size();
+        vector<vector<int>>dp(n,vector<int>(m,INT_MAX));
+        for(int i=0;i<n;i++){
+            for(int j=0;j<m;j++){
+                if(i==0 && j==0) dp[i][j]=grid[i][j];
+                else if(i==0) dp[i][j]=grid[i][j]+dp[i][j-1];
+                else if(j==0) dp[i][j]=grid[i][j]+dp[i-1][j];
+                else{
+                    dp[i][j]=grid[i][j]+min(dp[i-1][j], dp[i][j-1]);
+                }
+            }
+        }
+        return dp[n-1][m-1];
+}
+TC - O(N*M)
+SC - O(N*M)
+
+Space Optimization
+int minSumPath(vector<vector<int>> &grid) {
+        int n=grid.size();
+        int m=grid[0].size();
+        vector<int>prev(m,INT_MAX);
+        for(int i=0;i<n;i++){
+            vector<int>curr(m,INT_MAX);
+            for(int j=0;j<m;j++){
+                if(i==0 && j==0) curr[j]=grid[i][j];
+                else if(i==0) curr[j]=grid[i][j]+curr[j-1];
+                else if(j==0) curr[j]=grid[i][j]+prev[j];
+                else{
+                    curr[j]=grid[i][j]+min(prev[j], curr[j-1]);
+                }
+            }
+            prev=curr;
+        }
+        return prev[m-1];
+}
+TC - O(N*M)
+SC - O(M)
+
+4) Triangle
+
+Tabulation
+int minimumPathSum(vector<vector<int>>& t, int n){
+	vector<vector<int>>dp(n,vector<int>(n,0));
+	for(int i=n-1;i>=0;i--){
+		for(int j=i;j>=0;j--){
+			if(i==n-1) dp[i][j]=t[i][j];
+			else dp[i][j]=min(dp[i+1][j+1],dp[i+1][j])+t[i][j];
+		}
+	}
+	return dp[0][0];
+}
+
+5) Maximum Path Sum in matrix
+
+Tabulation
+int getMaxPathSum(vector<vector<int>> &matrix){
+    int m=matrix.size();
+    int n=matrix[0].size();
+    vector<vector<int>>dp(m,vector<int>(n,0));
+    for(int i=0;i<m;i++){
+        for(int j=0;j<n;j++){
+            if(i==0)  dp[i][j]=matrix[i][j];
+            else{
+            int up=-1e9,ld=-1e9,rd=-1e9;
+            up=matrix[i][j]+dp[i-1][j];
+             if(j-1>=0) ld=matrix[i][j]+dp[i-1][j-1];
+             if(j+1<n) rd=matrix[i][j]+dp[i-1][j+1];
+             dp[i][j]=max(up,max(ld,rd));
+            }
+        }
+    }
+    int maxi=-1e9;
+    for(int j=0;j<n;j++){
+        maxi=max(maxi,dp[m-1][j]);
+    }
+    return maxi;
+}
+
+Space Optimization
+int getMaxPathSum(vector<vector<int>> &matrix){
+    int m=matrix.size();
+    int n=matrix[0].size();
+    vector<int>prev(n,0);
+    for(int i=0;i<m;i++){
+        vector<int>curr(n,0);
+        for(int j=0;j<n;j++){
+            if(i==0)  curr[j]=matrix[i][j];
+            else{
+            int up=-1e9,ld=-1e9,rd=-1e9;
+            up=matrix[i][j]+prev[j];
+             if(j-1>=0) ld=matrix[i][j]+prev[j-1];
+             if(j+1<n) rd=matrix[i][j]+prev[j+1];
+             curr[j]=max(up,max(ld,rd));
+            }
+        }
+        prev=curr;
+    }
+    int maxi=-1e9;
+    for(int j=0;j<n;j++){
+        maxi=max(maxi,prev[j]);
+    }
+        return maxi;
+}
