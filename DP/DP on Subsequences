@@ -1,0 +1,282 @@
+1) Subset Sum Equal To K
+Memoization
+bool func(int i,int k,vector<int>&arr,vector<vector<int>>&dp){
+    if(k==0)  return true;
+    if(i==0)  return (arr[0]==k);
+    if(dp[i][k]!=-1)  return dp[i][k];
+    bool not_take=func(i-1,k,arr,dp);
+    bool take=false;
+    if(k>=arr[i]) take=func(i-1,k-arr[i],arr,dp);
+    return dp[i][k]=take | not_take;
+}
+bool subsetSumToK(int n, int k, vector<int> &arr) {
+    vector<vector<int>>dp(n,vector<int>(k+1,-1));
+    return func(n-1,k,arr,dp);
+}
+TC - O(N*K)
+SC - O(N*K) + Stack Space O(N)
+
+Tabulation
+bool subsetSumToK(int n, int k, vector<int> &arr) {
+    vector<vector<int>>dp(n+1,vector<int>(k+1,0));
+    for(int i=0;i<=n;i++){
+        dp[i][0]=1;
+    }
+    for(int i=1;i<=n;i++){
+        for(int j=1;j<=k;j++){
+            if(j>=arr[i-1]) dp[i][j]=dp[i-1][j-arr[i-1]] || dp[i-1][j];
+            else dp[i][j]=dp[i-1][j];
+        }
+    }
+    return dp[n][k];
+}
+TC - O(N*K)
+SC - O(N*K)
+
+Space Optimization
+bool subsetSumToK(int n, int k, vector<int> &arr) {
+    vector<int>prev(k+1,0);
+    prev[0]=1;
+    for(int i=1;i<=n;i++){
+        vector<int>curr(k+1,0);
+        curr[0]=1;
+        for(int j=1;j<=k;j++){
+            if(j>=arr[i-1]) curr[j]=prev[j-arr[i-1]] || prev[j];
+            else curr[j]=prev[j];
+        }
+        prev=curr;
+    }
+    return prev[k];
+}
+TC - O(N*K)
+SC - O(K)
+
+2) Partition Equal Subset Sum
+Memoization
+bool func(int i,int k,vector<int>&arr,vector<vector<int>>&dp){
+    if(k==0)  return true;
+    if(i==0)  return (arr[0]==k);
+    if(dp[i][k]!=-1)  return dp[i][k];
+    bool not_take=func(i-1,k,arr,dp);
+    bool take=false;
+    if(k>=arr[i]) take=func(i-1,k-arr[i],arr,dp);
+    return dp[i][k]=take | not_take;
+}
+bool canPartition(vector<int> &arr, int n){
+	int sum=0;
+	for(const auto &x: arr) sum+=x;
+	if(sum&1) return 0;
+	int k=sum/2;
+	vector<vector<int>>dp(n,vector<int>(k+1,-1));
+	return func(n-1,k,arr,dp);
+}
+TC - O(N*K)
+SC - O(N*K) + Stack Space O(N)
+
+Tabulation
+bool canPartition(vector<int> &arr, int n){
+	int sum=0;
+	for(const auto &x: arr) sum+=x;
+	if(sum&1) return 0;
+	int k=sum/2;
+	vector<vector<int>>dp(n+1,vector<int>(k+1,0));
+    for(int i=0;i<=n;i++){
+        dp[i][0]=1;
+    }
+    for(int i=1;i<=n;i++){
+        for(int j=1;j<=k;j++){
+            if(j>=arr[i-1]) dp[i][j]=dp[i-1][j-arr[i-1]] || dp[i-1][j];
+            else dp[i][j]=dp[i-1][j];
+        }
+    }
+    return dp[n][k];
+}
+TC - O(N*K)
+SC - O(N*K)
+
+Space Optimization
+bool canPartition(vector<int> &arr, int n){
+	int sum=0;
+	for(const auto &x: arr) sum+=x;
+	if(sum&1) return 0;
+	int k=sum/2;
+	vector<int>prev(k+1,0);
+    prev[0]=1;
+    for(int i=1;i<=n;i++){
+        vector<int>curr(k+1,0);
+        curr[0]=1;
+        for(int j=1;j<=k;j++){
+            if(j>=arr[i-1]) curr[j]=prev[j-arr[i-1]] || prev[j];
+            else curr[j]=prev[j];
+        }
+        prev=curr;
+    }
+    return prev[k];
+}
+TC - O(N*K)
+SC - O(K)
+
+3) Partition A Set Into Two Subsets With Minimum Absolute Sum Difference
+Memoization
+bool func(int i,int k,vector<int>&arr,vector<vector<int>>&dp){
+    if(k==0)  return true;
+    if(i==0)  return (arr[0]==k);
+    if(dp[i][k]!=-1)  return dp[i][k];
+    bool not_take=func(i-1,k,arr,dp);
+    bool take=false;
+    if(k>=arr[i]) take=func(i-1,k-arr[i],arr,dp);
+    return dp[i][k]=take | not_take;
+}
+
+int minSubsetSumDifference(vector<int>& arr, int n){
+	 int k=0;
+     for(const auto &x: arr) k+=x;
+     vector<vector<int>>dp(n,vector<int>(k+1,-1));
+     for (int i = 0; i <= k; i++) {
+       func(n-1 , i, arr, dp);
+     }
+     int minm=INT_MAX;
+     for(int i=0;i<=k/2;i++){
+         if(dp[n-1][i]) minm=min(minm,abs(k-2*i));
+     }
+     return minm;
+}
+TC - O(N*K)
+SC - O(N*K) + Stack Space O(N)
+
+Tabulation
+int minSubsetSumDifference(vector<int>& arr, int n){
+	int k=0;
+    for(const auto &x: arr) k+=x;
+    vector<vector<int>>dp(n+1,vector<int>(k+1,0));
+    for(int i=0;i<=n;i++){
+        dp[i][0]=1;
+    }
+    for(int i=1;i<=n;i++){
+        for(int j=1;j<=k;j++){
+            if(j>=arr[i-1]) dp[i][j]=dp[i-1][j-arr[i-1]] || dp[i-1][j];
+            else dp[i][j]=dp[i-1][j];
+        }
+    }
+    int minm=INT_MAX;
+    for(int i=0;i<=k/2;i++){
+         if(dp[n][i]) minm=min(minm,abs(k-2*i));
+    }
+    return minm;
+}
+TC - O(N*K)
+SC - O(N*K) 
+
+Space Optimization
+int minSubsetSumDifference(vector<int>& arr, int n){
+	int k=0;
+    for(const auto &x: arr) k+=x;
+    vector<int>prev(k+1,0);
+    prev[0]=1;
+    for(int i=1;i<=n;i++){
+        vector<int>curr(k+1,0);
+        curr[0]=1;
+        for(int j=1;j<=k;j++){
+            if(j>=arr[i-1]) curr[j]=prev[j-arr[i-1]] || prev[j];
+            else curr[j]=prev[j];
+        }
+        prev=curr;
+    }
+    int minm=INT_MAX;
+    for(int i=0;i<=k/2;i++){
+         if(prev[i]) minm=min(minm,abs(k-2*i));
+    }
+    return minm;
+}
+TC - O(N*K)
+SC - O(K) 
+
+4)  Count Subsets with Sum K
+Tabulation
+int findWays(vector<int>& arr, int k) {
+    ll n=arr.size();
+    sort(arr.begin(),arr.end(),greater<int>()); // for 0 elements in array , either do decrease sorting or ans = dp[n][k] * pow(2,count_of_zero) 
+    vector<vector<ll>>dp(n+1,vector<ll>(k+1,0));
+    for(ll i=0;i<=n;i++){
+        dp[i][0]=1;
+    }
+    for(ll i=1;i<=n;i++){
+        for(ll j=1;j<=k;j++){
+            if(j>=arr[i-1]) dp[i][j]=(dp[i-1][j-arr[i-1]]%mod + dp[i-1][j]%mod)%mod;
+            else dp[i][j]=dp[i-1][j]%mod;
+        }
+    }
+    return dp[n][k]%mod;
+}
+TC - O(N*K)
+SC - O(N*K) 
+
+ll func(ll i,ll k,vector<int>&arr,vector<vector<ll>>&dp){
+  if (i == 0) {  // for arr having both zero & non zero elements
+      if(k==0 && arr[0]==0) return 2;
+      if(k==0 || arr[0]==k) return 1;
+      return 0;
+  }
+  
+  if (dp[i][k] != -1)
+    return dp[i][k] % mod;
+  ll not_take = func(i - 1, k, arr, dp) % mod;
+  ll take = 0;
+  if (k >= arr[i])
+    take = func(i - 1, k - arr[i], arr, dp) % mod;
+  return dp[i][k] = (take % mod + not_take % mod) % mod;
+}
+int findWays(vector<int>& arr, int k) {
+    ll n=arr.size();
+    vector<vector<ll>>dp(n,vector<ll>(k+1,-1));
+    return func(n-1,k,arr,dp)%mod;
+}
+TC - O(N*K)
+SC - O(N*K) + stack space  
+
+5) Count Partitions With Given Difference
+Tabulation
+int countPartitions(int n, int d, vector<int> &arr){
+    int totsum=0;
+    for(int i=0;i<n;i++)  totsum+=arr[i];
+    if((totsum-d)<0 || (totsum-d)%2==1) return 0;
+    int k=(totsum-d)/2;
+    //count total subsets which gives some k
+    int dp[n+1][k+1];  // dp of no of elements and required sum 
+    dp[0][0]=1;
+    for(int j=1;j<=k;j++)  dp[0][j]=0;
+    for(int i=1;i<=n;i++){
+      for(int j=0;j<=k;j++){  // done differently since arr had 0 elements too
+          if(j>=arr[i-1])  dp[i][j]=dp[i-1][j-arr[i-1]]+dp[i-1][j];
+          else dp[i][j]=dp[i-1][j];
+          dp[i][j]%=mod;
+      } 
+    }
+    return dp[n][k]%mod;
+}
+TC - O(N*K)
+SC - O(N*K) 
+
+Space Optimization
+int countPartitions(int n, int d, vector<int> &arr) {
+    // Write your code here.
+    int totsum=0;
+    for(int i=0;i<n;i++)  totsum+=arr[i];
+    if((totsum-d)<0 || (totsum-d)%2==1) return 0;
+    int k=(totsum-d)/2;
+    //count total subsets which gives some k
+    vector<int>prev(k+1,0);
+    prev[0]=1;
+    for(int i=1;i<=n;i++){
+         vector<int>curr(k+1,0);
+      for(int j=0;j<=k;j++){
+          curr[j]=prev[j];
+          if(j>=arr[i-1])  curr[j]+=prev[j-arr[i-1]];
+          curr[j]%=mod;
+      } 
+        prev=curr;
+    }
+    return prev[k]%mod;
+}
+TC - O(N*K)
+SC - O(K) 
