@@ -1,1 +1,212 @@
 1)  Longest Increasing Subsequence
+Memoization
+    int func(int indx,int prev_indx,int n,vector<int>&nums,vector<vector<int>>&dp){
+        if(indx==n) return 0;
+        if(dp[indx][prev_indx+1]!=-1)  return dp[indx][prev_indx+1];
+        int len=0 + func(indx+1,prev_indx,n,nums,dp);
+        if(prev_indx==-1 || nums[indx]>nums[prev_indx]) len=max(len,1+func(indx+1,indx,n,nums,dp));
+        return dp[indx][prev_indx+1]=len;
+
+    }
+    int lengthOfLIS(vector<int>& nums) {
+        int n=nums.size();
+        vector<vector<int>>dp(n,vector<int>(n+1,-1));
+        return func(0,-1,n,nums,dp);
+    }
+TC - O(N*N)
+SC - O(N*N) + Stack space
+
+Tabulation
+    int lengthOfLIS(vector<int>& nums) {
+        int n=nums.size();
+        vector<vector<int>>dp(n+1,vector<int>(n+1,0));
+        for(int indx=n-1;indx>=0;indx--){
+            for(int prev_indx=indx-1;prev_indx>=-1;prev_indx--){
+              int len=0 + dp[indx+1][prev_indx+1];
+              if(prev_indx==-1 || nums[indx]>nums[prev_indx]) len=max(len,1+dp[indx+1][indx+1]);
+              dp[indx][prev_indx+1]=len;
+            }
+        }
+        return dp[0][-1+1];
+    }
+TC - O(N*N)
+SC - O(N*N)
+
+Space Optimization
+    int lengthOfLIS(vector<int>& nums) {
+        int n=nums.size();
+        vector<int>after(n+1,0),curr(n+1,0);
+        for(int indx=n-1;indx>=0;indx--){
+            for(int prev_indx=indx-1;prev_indx>=-1;prev_indx--){
+              int len=0 + after[prev_indx+1];
+              if(prev_indx==-1 || nums[indx]>nums[prev_indx]) len=max(len,1+after[indx+1]);
+              curr[prev_indx+1]=len;
+            }
+            after=curr;
+        }
+        return after[-1+1];
+    }
+TC - O(N*N)
+SC - O(N)
+
+Linear Space Optimization 
+int lengthOfLIS(vector<int>& nums) {
+        int n=nums.size(),maxi=1;
+        vector<int>dp(n,1);
+        for(int i=0;i<n;i++){
+            for(int prev=0;prev<i;prev++){
+                if(nums[prev]<nums[i]) dp[i]=max(dp[i],1+dp[prev]);
+            }
+          maxi=max(maxi,dp[i]);  
+        }
+        return maxi;
+    }
+TC - O(N*N)
+SC - O(N)
+
+Binary Search
+    int lengthOfLIS(vector<int>& arr) {
+        int n=arr.size();
+        vector<int>temp;
+        for(int i=0;i<n;i++){
+            if(temp.empty() || temp.back()<arr[i] ){
+                temp.push_back(arr[i]);
+            }
+            else{
+                int ind=lower_bound(temp.begin(),temp.end(),arr[i])-temp.begin();
+                if(ind!=temp.size()) temp[ind]=arr[i];
+                //An iterator to the lower bound of val in the range. If all the elements in the range compare less than val, the function returns last. If all the elements in the range are larger than val,     
+                //the function returns a pointer to the first element.  
+            }
+        }
+        int ans=temp.size();
+        return ans;
+    }
+TC - O(NLOGN)
+SC - O(N)
+
+2) Print LIS
+vector<int> printingLongestIncreasingSubsequence(vector<int> nums, int n) {
+        vector<int>dp(n,1),parent(n);
+		int maxm=1,lastindex=0;
+        for(int i=0;i<n;i++){
+			parent[i]=i;
+            for(int prev=0;prev<i;prev++){
+              if(nums[prev] < nums[i] && 1 + dp[prev] > dp[i]) {
+                dp[i] = 1 + dp[prev]; 
+				parent[i]=prev; 
+			  }
+            }
+		 if(dp[i]>maxm){
+			 maxm=dp[i];
+             lastindex=i;
+		  } 
+        }
+        vector<int>ans;
+		ans.push_back(nums[lastindex]);
+		while(parent[lastindex]!=lastindex){
+            lastindex=parent[lastindex];
+			ans.push_back(nums[lastindex]);
+		}
+		reverse(ans.begin(),ans.end());
+		return ans;
+}
+
+3)  Divisible Set
+vector<int> divisibleSet(vector<int> &nums){
+    int n=nums.size() , maxi=1 , lastindex=0;
+        sort(nums.begin(),nums.end());
+        vector<int>dp(n,1),hash(n,0);
+        for(int i=1;i<n;i++){
+            hash[i]=i;
+            for(int prev=0;prev<i;prev++){
+                if(nums[i]%nums[prev]==0 && 1+dp[prev]>dp[i]) {
+                   dp[i]=1+dp[prev];
+                   hash[i]=prev;
+                }
+            }
+          if(dp[i]>maxi){
+              maxi=dp[i];
+              lastindex=i;
+          }
+        }
+        vector<int>temp;
+        temp.push_back(nums[lastindex]);
+        while(hash[lastindex]!=lastindex){
+            lastindex=hash[lastindex];
+            temp.push_back(nums[lastindex]);
+        }
+        reverse(temp.begin(),temp.end());
+        return temp;
+}
+
+4) Longest String Chain
+static bool comp(string &str1,string &str2){
+    return str1.size()<str2.size();
+}
+
+bool checkStrings(string &str1,string &str2){
+     if(str1.size()!=str2.size()+1) return 0;
+     int first=0,second=0;
+     while(first<str1.size()){
+         if(str1[first]==str2[second] && second<str2.size()) first++, second++;
+         else first++;
+     }
+     return (first==str1.size() && second==str2.size());
+}
+int longestStrChain(vector<string> &arr){
+   sort(arr.begin(),arr.end(),comp);
+   int n=arr.size(),maxm=1;
+   vector<int>dp(n,1);
+   for(int curr=0;curr<n;curr++){
+       for(int prev=0;prev<curr;prev++){
+          if(checkStrings(arr[curr],arr[prev]) && 1+dp[prev]>dp[curr]){
+              dp[curr]=1+dp[prev];
+          }
+       }
+       maxm=max(maxm,dp[curr]);
+   }
+   return maxm;
+}
+
+5) Longest Bitonic Sequence
+int longestBitonicSubsequence(vector<int>& nums, int n){
+	vector<int>dp1(n,1),dp2(n,1);
+        for(int i=0;i<n;i++){
+            for(int prev=0;prev<i;prev++){
+                if(nums[prev]<nums[i] && 1+dp1[prev]>dp1[i]) dp1[i]=1+dp1[prev];
+            }
+        }
+        for(int i=n-1;i>=0;i--){
+          for(int prev=n-1;prev>i;prev--){
+               if(nums[prev]<nums[i] && 1+dp2[prev]>dp2[i]) dp2[i]=1+dp2[prev];
+            } 
+        }
+        int ans=1;
+        for(int i=0;i<n;i++){
+            ans=max(ans,dp2[i]+dp1[i]-1);
+        }
+        return ans;         
+}
+
+6) Number of Longest Increasing Subsequence
+int findNumberOfLIS(vector<int> &nums){
+    int n=nums.size(),maxm=1;
+    vector<int>dp(n,1),cnt(n,1);
+    for(int i=0;i<n;i++){
+        for(int prev=0;prev<i;prev++){
+          if (nums[prev] < nums[i] && 1 + dp[prev] > dp[i]) {
+            dp[i]=1+dp[prev];
+            cnt[i]=cnt[prev];
+          } else if (nums[prev] < nums[i] && 1 + dp[prev] == dp[i]) {
+            cnt[i] += cnt[prev];
+          }
+        }
+        maxm = max(maxm, dp[i]);
+    }
+        int ans=0;
+        for(int i=0;i<n;i++){
+            if(maxm==dp[i]) ans+=cnt[i];
+        }
+    return ans;
+}
