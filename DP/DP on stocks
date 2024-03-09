@@ -1,0 +1,119 @@
+1) Best Time to Buy and Sell Stock 1   maximum profit by buying and selling the stock only once.
+int maximumProfit(vector<int> &prices){
+    int n=prices.size();
+    int minm=1e9+2, ans=0;
+    for(int i=0;i<n;i++){
+        minm=min(minm,prices[i]);
+        ans=max(ans,prices[i]-minm);
+    }
+    return ans;
+}
+
+2)  Best Time to Buy and Sell Stock 2  only hold at most one share of the stock at any time.can also buy it then immediately sell it on the same day.
+Memoization
+    int func(int indx,int buy,int n,vector<int>& prices,vector<vector<int>>&dp){
+      if(indx==n) return 0;
+      if(dp[indx][buy]!=-1) return dp[indx][buy];
+      if(buy){
+          return dp[indx][buy]=max(func(indx+1,1,n,prices,dp),-prices[indx] + func(indx+1,0,n,prices,dp)); }
+      else {
+        return dp[indx][buy]=max(func(indx+1,0,n,prices,dp) , prices[indx] + func(indx+1,1,n,prices,dp)); 
+        }
+}
+int maxProfit(vector<int>& prices) {
+        int n=prices.size();
+        vector<vector<int>>dp(n+1,vector<int>(2,-1));
+        return func(0,1,n,prices,dp);
+}
+
+Tabulation
+  int maxProfit(vector<int>& prices) {
+        int n=prices.size();
+        vector<vector<int>>dp(n+1,vector<int>(2,0));
+        for(int indx=n-1;indx>=0;indx--){
+            for(int buy=0;buy<2;buy++){
+                if(buy){
+                    dp[indx][1]=max(-prices[indx]+dp[indx+1][0],dp[indx+1][1]);
+                }
+                else {
+                    dp[indx][0]=max(prices[indx]+dp[indx+1][1],dp[indx+1][0]); 
+                }
+            }
+        }
+        return dp[0][1];
+    }
+
+Space Optimization
+    int maxProfit(vector<int>& prices) {
+        int n=prices.size();
+        vector<int>prev(2,0),curr(2,0);
+        for(int indx=n-1;indx>=0;indx--){
+            for(int buy=0;buy<2;buy++){
+                if(buy){
+                    curr[1]=max(-prices[indx]+prev[0],prev[1]);
+                }
+                else {
+                    curr[0]=max(prices[indx]+prev[1],prev[0]); 
+                }
+            }
+            prev=curr;
+        }
+        return prev[1];
+    }
+
+3)  Best Time to Buy and Sell Stock 3   (no more than 2 transactions)
+Memoization
+  int func(int indx,int buy,int cap,int n,vector<int>&prices,vector<vector<vector<int>>>&dp){
+        if(indx==n || cap==0) return 0;
+        if(dp[indx][buy][cap]!=-1) return dp[indx][buy][cap];
+        if(buy==1) 
+           return dp[indx][buy][cap]=max(-prices[indx]+func(indx+1,0,cap,n,prices,dp) , func(indx+1,1,cap,n,prices,dp));
+        else   // capacity reduces when u complete a transaction=>sell it 
+           return dp[indx][buy][cap]=max(prices[indx]+func(indx+1,1,cap-1,n,prices,dp),func(indx+1,0,cap,n,prices,dp));
+    } 
+  int maxProfit(vector<int>& prices) {
+      int n=prices.size();
+      vector<vector<vector<int>>>dp(n+1,vector<vector<int>>(2,vector<int>(3,-1))); // dp[index][buy][capacity]
+      return func(0,1,2,n,prices,dp);  
+    }
+
+Tabulation
+    int maxProfit(vector<int>& prices) {
+        int n=prices.size();
+        vector<vector<vector<int>>>dp(n+1,vector<vector<int>>(2,vector<int>(3,0)));
+        for(int indx=n-1;indx>=0;indx--){
+            for(int buy=0;buy<=1;buy++){
+                for(int cap=1;cap<=2;cap++){
+                    if(buy==1){
+                        dp[indx][buy][cap]=max(-prices[indx]+dp[indx+1][0][cap],dp[indx+1][1][cap]);
+                    }
+                    else{
+                        dp[indx][buy][cap]=max(prices[indx]+dp[indx+1][1][cap-1],dp[indx+1][0][cap]);
+                    }
+                }
+            }
+        }
+        return dp[0][1][2];
+    }
+
+Space Optimization
+    int maxProfit(vector<int>& prices) {
+        int n=prices.size();
+        vector<vector<int>>after(2,vector<int>(3,0)),curr(2,vector<int>(3,0));
+        for(int indx=n-1;indx>=0;indx--){
+            for(int buy=1;buy>=0;buy--){
+                for(int cap=2;cap>=1;cap--){
+                    if(buy==1){
+                      curr[buy][cap]=max(-prices[indx]+after[0][cap],after[1][cap]);
+                    }
+                    else{
+                        curr[buy][cap]=max(prices[indx]+after[1][cap-1],after[0][cap]);
+                    }
+                }
+            }
+            after=curr;
+        }
+        return after[1][2];
+    }
+
+4) 
