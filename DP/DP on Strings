@@ -1,0 +1,233 @@
+1)  Longest Common Subsequence
+Memoization
+int f(int indx1,int indx2,string &str1,string &str2,vector<vector<int>>&dp){
+    if(indx1<0 || indx2<0) return 0;
+    if(dp[indx1][indx2]!=-1) return dp[indx1][indx2];
+    int notTake=max(f(indx1-1,indx2,str1,str2,dp),f(indx1,indx2-1,str1,str2,dp));
+    int take=INT_MIN;
+    if(str1[indx1]==str2[indx2]) take=1+f(indx1-1,indx2-1,str1,str2,dp);
+    return dp[indx1][indx2]=max(take,notTake);
+}
+int lcs(string str1, string str2){
+	int n1=str1.size(), n2=str2.size();
+    vector<vector<int>>dp(n1,vector<int>(n2,-1));
+    return f(n1-1,n2-1,str1,str2,dp);
+}
+TC - O(N*M)
+SC - O(N*M) + STACK SPACE
+
+Tabulation
+int lcs(string str1, string str2){
+	int n1=str1.size(), n2=str2.size();
+    vector<vector<int>>dp(n1+1,vector<int>(n2+1,0));
+    for(int i=1;i<=n1;i++){
+        for(int j=1;j<=n2;j++){
+            if(str1[i-1]==str2[j-1]){
+                dp[i][j]=1+dp[i-1][j-1];
+            }
+            else{
+                dp[i][j]=max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
+    }
+    return dp[n1][n2];
+}
+TC - O(N*M)
+SC - O(N*M)
+
+Space Optimization
+int lcs(string str1, string str2){
+	int n1=str1.size(), n2=str2.size();
+    vector<int>prev(n2+1,0);
+    for(int i=1;i<=n1;i++){
+        vector<int>curr(n2+1,0);
+        for(int j=1;j<=n2;j++){
+            if(str1[i-1]==str2[j-1]){
+                curr[j]=1+prev[j-1];
+            }
+            else{
+                curr[j]=max(prev[j], curr[j-1]);
+            }
+        }
+        prev=curr;
+    }
+    return prev[n2];
+}
+TC - O(N*M)
+SC - O(M)
+
+2)  Print Longest Common Subsequence
+string findLCS(int n, int m,string &s1, string &s2){
+	vector<vector<int>>dp(n+1,vector<int>(m+1,0));
+	for(int i=1;i<=n;i++){
+		for(int j=1;j<=m;j++){
+			if(s1[i-1]==s2[j-1]) dp[i][j]=1+dp[i-1][j-1];
+			else dp[i][j]=max(dp[i-1][j],dp[i][j-1]);
+		}
+	}
+	string ans="";
+	int i=n,j=m;
+	while(i && j){
+		if(s1[i-1]==s2[j-1]){
+			ans=s1[i-1]+ans;
+			i--; j--;
+		}
+		else if(dp[i-1][j]<dp[i][j-1]) j--;
+		else i--;
+	}
+	return ans;
+}
+TC - O(N*M)
+SC - O(N*M)
+Space Optimization not possible since we need complete 2 D matrix to print LCS 
+
+3) Longest Common Substring
+Recursion
+int f(int i, int j, string &str1, string &str2, int count) {
+    if (i == 0 || j == 0)
+        return count;
+    if (str1[i - 1] == str2[j - 1]) {
+        count = f(i - 1, j - 1, str1, str2, count + 1);
+    }
+    count = max(count,  max(f(i, j - 1, str1, str2, 0), f(i - 1, j, str1, str2, 0)));
+    return count;
+  }
+int lcs(string &str1, string &str2){
+    int n1=str1.size(), n2=str2.size(), cnt=0;
+    return f(n1,n2,str1,str2,cnt);   
+}
+
+Tabulation
+int lcs(string &str1, string &str2){
+    int n1=str1.size(), n2=str2.size(), maxm=INT_MIN;
+    vector<vector<int>>dp(n1+1,vector<int>(n2+1,0));
+    for(int i=1;i<=n1;i++){
+        for(int j=1;j<=n2;j++){
+            if(str1[i-1]==str2[j-1]){
+                dp[i][j]=1+dp[i-1][j-1];
+            }
+            else{
+                dp[i][j]=0;
+            }
+            maxm=max(maxm,dp[i][j]);
+        }
+    }
+    return maxm;
+}
+TC - O(N*M)
+SC - O(N*M)
+
+Space Optimization
+int lcs(string &str1, string &str2){
+    int n1=str1.size(), n2=str2.size(), maxm=INT_MIN;
+    vector<int>prev(n2+1,0);
+    for(int i=1;i<=n1;i++){
+        vector<int>curr(n2+1,0);
+        for(int j=1;j<=n2;j++){
+            if(str1[i-1]==str2[j-1]){
+                curr[j]=1+prev[j-1];
+            }
+            maxm=max(maxm,curr[j]);
+        }
+        prev=curr;
+    }
+    return maxm;
+}
+TC - O(N*M)
+SC - O(M)
+
+4) Longest Palindromic Subsequence
+Memoization
+int f(int indx1,int indx2,string &str1,string &str2,vector<vector<int>>&dp){
+    if(indx1<0 || indx2<0) return 0;
+    if(dp[indx1][indx2]!=-1) return dp[indx1][indx2];
+    int notTake=max(f(indx1-1,indx2,str1,str2,dp),f(indx1,indx2-1,str1,str2,dp));
+    int take=INT_MIN;
+    if(str1[indx1]==str2[indx2]) take=1+f(indx1-1,indx2-1,str1,str2,dp);
+    return dp[indx1][indx2]=max(take,notTake);
+}
+int longestPalindromeSubsequence(string str1){
+	int n=str1.size();
+    string str2=str1;
+    reverse(str2.begin(),str2.end());
+    vector<vector<int>>dp(n,vector<int>(n,-1));
+    return f(n-1,n-1,str1,str2,dp);
+}
+
+Tabulation
+int longestPalindromeSubsequence(string str1){
+    string str2=str1;
+    reverse(str2.begin(),str2.end());
+    int n=str1.size();
+    vector<vector<int>>dp(n+1,vector<int>(n+1,0));
+    for(int i=1;i<=n;i++){
+        for(int j=1;j<=n;j++){
+            if(str1[i-1]==str2[j-1]){
+                dp[i][j]=1+dp[i-1][j-1];
+            }
+            else{
+                dp[i][j]=max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
+    }
+    return dp[n][n];
+}
+
+Space Optimization
+int longestPalindromeSubsequence(string str1){
+    string str2=str1;
+    reverse(str2.begin(),str2.end());
+    int n=str1.size();
+    vector<int>prev(n+1,0);
+    for(int i=1;i<=n;i++){
+        vector<int>curr(n+1,0);
+        for(int j=1;j<=n;j++){
+            if(str1[i-1]==str2[j-1]){
+                curr[j]=1+prev[j-1];
+            }
+            else{
+                curr[j]=max(prev[j], curr[j-1]);
+            }
+        }
+        prev=curr;
+    }
+    return prev[n];
+}
+
+5)  Minimum insertions to make a string palindrome  n-len of LPS
+int minimumInsertions(string &str1){
+	  string str2=str1;
+    reverse(str2.begin(),str2.end());
+    int n=str1.size();
+    vector<vector<int>>dp(n+1,vector<int>(n+1,0));
+    for(int i=1;i<=n;i++){
+        for(int j=1;j<=n;j++){
+            if(str1[i-1]==str2[j-1]){
+                dp[i][j]=1+dp[i-1][j-1];
+            }
+            else{
+                dp[i][j]=max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
+    }
+    return n-dp[n][n];
+}
+
+6) Minimum Insertions/Deletions to Convert String A to String B    n1 + n2 - 2 * len_of_LPS 
+int canYouMake(string &str1, string &str2){
+    int n1=str1.size(), n2=str2.size();
+    vector<vector<int>>dp(n1+1,vector<int>(n2+1,0));
+    for(int i=1;i<=n1;i++){
+        for(int j=1;j<=n2;j++){
+            if(str1[i-1]==str2[j-1]){
+                dp[i][j]=1+dp[i-1][j-1];
+            }
+            else{
+                dp[i][j]=max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
+    }
+    return n1+n2-2*dp[n1][n2];
+}
+
+7) 
