@@ -51,7 +51,7 @@ vector<int> bfsTraversal(int vertex, vector<vector<int>> &edges){
 }
 
 TC - O(V+E)
-SC - O(V)  V= vertex , E = edges
+SC - O(V)  V= vertex , E = edges  // O(V+E) including adjacency list
 
 DFS TRAVERSAL
 
@@ -334,4 +334,127 @@ TC - O(V+E)
 SC - O(V)
 
 
+SHORTEST PATH IN UNDIRECTED GRAPHS
 
+vector<int> shortestPath( vector<pair<int,int>> edges , int n , int m, int s , int t){
+    unordered_map<int,list<int>>adj;
+    for(int i=0;i<edges.size();i++){
+        int u=edges[i].first;
+        int v=edges[i].second;
+        adj[u].push_back(v);
+        adj[v].push_back(u);
+    }
+    unordered_map<int,bool>visited;
+    unordered_map<int,int>parent;
+    queue<int>q;
+    parent[s]=-1;
+    q.push(s);
+    visited[s]=triue;
+    while(!q.empty()){
+        int front=q.front();
+        q.pop();
+        for(auto i : adj[front]){
+            if(!visited[i]){
+                visited[i]=true;
+                parent[i]=front;
+                q.push(i);
+            }
+        }
+    }
+    vector<int>ans;
+    int currnode=t;
+    ans.push_back(t);
+    while(currnode!=s){
+        currnode=parent[currnode];
+        ans.push_back(currnode);
+    }
+    reverse(ans.begin(),ans.end());
+    return ans;
+}
+TC - O(V+E)
+SC - O(V)
+
+
+SHORTEST PATH IN DIRECTED ACYCLIC GRAPHS FROM GIVEN SOURCE (here 0)
+
+void toposort(int node, vector<bool>&visited, unordered_map<int,vector<pair<int,int>>>&adj, stack<int>&st){
+        visited[node]=true;
+        for(auto it: adj[node]){
+            if(!visited[it.first]){
+                toposort(it.first,visited,adj,st);
+            }
+        }
+        st.push(node);
+    }
+    
+vector<int> shortestPath(int N,int M, vector<vector<int>>& edges){
+        unordered_map<int,vector<pair<int,int>>>adj;
+        vector<int>indegree(N,0);
+        for(int i=0;i<M;i++){
+            int u=edges[i][0];
+            int v=edges[i][1];
+            int wt=edges[i][2];
+            adj[u].push_back({v,wt});
+        }
+        vector<bool>visited(N,false);
+        stack<int>st;
+        for(int i=0;i<N;i++){
+            if(!visited[i]){
+                toposort(i,visited,adj,st);
+            }
+        }
+        vector<int>dist(N,1e9);
+        dist[0]=0;
+        while(!st.empty()){
+            int front=st.top();
+            st.pop();   
+            for(auto it: adj[front]){
+                int v=it.first;
+                int wt=it.second;
+                if(dist[front]!=1e9 && dist[front]+wt<dist[v]){
+                    dist[v]=dist[front]+wt;
+                }
+            }
+        }
+        for(int i=0;i<N;i++){
+            if(dist[i]==1e9) dist[i]=-1;
+        } 
+        return dist;
+    }
+TC - O(V+E)
+SC - O(V+E)
+
+DIJKSTRA ALGORITHM
+
+USING PRIORITY QUEUE
+
+vector<int> dijkstra(vector<vector<int>> &vec, int V, int edges, int S) {
+      unordered_map<int,vector<vector<int>>>adj;
+      for(int i=0;i<edges;i++){
+           int u=vec[i][0];
+           int v=vec[i][1];
+           int wt=vec[i][2];
+           adj[u].push_back({v,wt});
+           adj[v].push_back({u,wt});
+      }
+       vector<int>dist(V,INT_MAX);
+        dist[S]=0;
+        priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>pq;
+        pq.push({0,S});    //dist node
+        while(!pq.empty()){
+            int dis=pq.top().first;
+            int node=pq.top().second;
+            pq.pop();
+            for(auto it: adj[node]){
+                int edgeWeight=it[1];
+                int neighNode=it[0];
+                if(dist[node]+edgeWeight<dist[neighNode]){
+                    dist[neighNode]=dist[node]+edgeWeight;
+                    pq.push({dist[neighNode],neighNode});
+                }
+            }
+        }
+        return dist;
+}
+TC - O(E LOG V)
+SC - O(V+E)
