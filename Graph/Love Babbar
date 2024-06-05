@@ -575,8 +575,75 @@ public:
 TC - O(E LOG E) + O( 4 Alpha) = O (E LOG E) + O(1) = O(E LOG E)
 SC - O(V)
 
+KOSARAJU ALGORITHM
+ 1) SORTING TOPOLOGICAL SORT TO GET THE ORDER OF DFS TRAVERSAL
+ 2) TRANSPOSE GRAPH - SINCE STACK GIVES ORDERING IN REVERSE ORDER
+ 3) DFS COUNT 
 
-BRIDGES IN A GRAPH
+void dfs(int node, unordered_map<int,list<int>>&adj, unordered_map<int,bool>&vis, stack<int>&st){
+     vis[node]=1;
+	 for(auto child: adj[node]){
+		 if(!vis[child]){
+			 dfs(child,adj,vis,st);
+		 }
+	 }
+	 st.push(node);
+}
 
+void revdfs(int node, unordered_map<int,list<int>>&revadj, unordered_map<int,bool>&vis){
+     vis[node]=1;
+	 for(auto child: revadj[node]){
+		 if(!vis[child]){
+			 revdfs(child,revadj,vis);
+		 }
+	 }
+}
 
+int stronglyConnectedComponents(int v, vector<vector<int>> &edges){
+	unordered_map<int,list<int>>adj;
+	for(int i=0;i<edges.size();i++){
+		int u=edges[i][0];
+		int v=edges[i][1];
+		adj[u].push_back(v);
+	}
+	// creating toposort
+	stack<int>st;
+	unordered_map<int,bool>vis;
+	for(int i=0;i<v;i++){
+		if(!vis[i]){
+			dfs(i,adj,vis,st);
+		}
+	}
+	// reverse the edges
+	unordered_map<int,list<int>>revadj;
+	for(int i=0;i<v;i++){
+		vis[i]=0;
+		for(auto child : adj[i]){
+			revadj[child].push_back(i);
+		}
+	}
+	// again dfs
+	int Scc_Cnt=0;
+	while(!st.empty()){
+		int node=st.top();
+		st.pop();
+		if(!vis[node]){
+	       Scc_Cnt++;
+		   revdfs(node,revadj,vis);
+		}
+	}
+	return Scc_Cnt;
+}
+TC - O(V+E)
+SC - O(V)
 
+BELLMAN FORD ALGORITHM
+
+APPLIED ON DIRECTED GRAPHS WITH NEGATIVE WEIGHTS
+CONVERT UNDIRECTED TO DIRECTED TO APPLY BF
+APPLY N-1 TIMES FORMULA on all edges & 1 more time same formula apply kro agar koi distance updat ho jae mtlb negative cycle present h to min dist/ shortest path nhi find kr skte
+if(dis[u] + wt< dist[v]) 
+
+BRIDGES IN GRAPH
+
+ARTICULATION POINT
