@@ -1,0 +1,176 @@
+DISJOINT SET - UNION BY RANK & UNION BY SIZE
+
+class DisjointSet{
+   vector<int>rank,parent,size;
+public:
+    DisjointSet(int n){        //constructor
+        rank.resize(n+1,0);
+        parent.resize(n+1);
+        size.resize(n+1,0);
+        for(int i=0;i<=n;i++){
+            parent[i]=i;
+        }
+    }
+
+    int findUltimateParent(int node){
+        if(node==parent[node]) return node;
+        return parent[node] = findUltimateParent(parent[node]);
+    }
+    
+    void UnionByRank(int u, int v){
+        int ulp_u = findUltimateParent(u);
+        int ulp_v = findUltimateParent(v);
+        if(ulp_u==ulp_v)  return;
+        
+        if(rank[ulp_u]<rank[ulp_v])
+            parent[ulp_u]=ulp_v;
+            
+        else if(rank[ulp_v]<rank[ulp_u])
+            parent[ulp_v]=ulp_u;
+            
+        else{
+            parent[ulp_v]=ulp_u;
+            rank[ulp_u]++;
+        }
+    }
+    
+     void UnionBySize(int u, int v){
+        int ulp_u = findUltimateParent(u);
+        int ulp_v = findUltimateParent(v);
+        if(ulp_u==ulp_v)  return;
+        if(size[ulp_u]<size[ulp_v]){
+            parent[ulp_u]=ulp_v;
+            size[ulp_u]+=size[ulp_v];
+        }
+        else{
+            parent[ulp_v]=ulp_u;
+            size[ulp_v]+=size[ulp_u];
+        }
+        
+    }
+};
+
+TC - O( 4 alpha) = O(1)
+sc - O(V)
+
+
+
+Spanning Tree - in an undirected weighted graph, n nodes & m edges, a tree which have n nodes and n-1 edges and all nodes are reachable from each other
+MST - spanning tree with minimum edges sum 
+
+1) Prim's Algo (Greedy algorithm)
+
+int spanningTree(int v,vector<vector<int>>adj[]){
+        priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>pq;
+        vector<int>vis(v,0);         
+        pq.push({0,0});       //weight node
+        int totalwt=0;
+        // O(E)
+        while(!pq.empty()){
+        //O(LOGE)
+           int wt=pq.top().first;
+           int node=pq.top().second;
+           pq.pop();
+           if(vis[node]==1)  continue;
+           vis[node]=1;
+           totalwt+=wt;
+           for(auto it: adj[node]){
+               int adjnode=it[0];
+               int ewt=it[1];
+               if(!vis[adjnode])
+                  pq.push({ewt,adjnode});
+            }
+        }
+        return totalwt;        
+    }
+TC - O(E LOGE)
+SC - O(V)
+
+
+KRUSKAL ALGORITHM (DISJOINT UNION SET)
+
+class DisjointSet{
+   vector<int>rank,parent,size;
+public:
+    DisjointSet(int n){        //constructor
+        rank.resize(n+1,0);
+        parent.resize(n+1);
+        size.resize(n+1,0);
+        for(int i=0;i<=n;i++){
+            parent[i]=i;
+        }
+    }
+
+    int findUltimateParent(int node){
+        if(node==parent[node]) return node;
+        return parent[node] = findUltimateParent(parent[node]);
+    }
+    
+    void UnionByRank(int u, int v){
+        int ulp_u = findUltimateParent(u);
+        int ulp_v = findUltimateParent(v);
+        if(ulp_u==ulp_v)  return;
+        
+        if(rank[ulp_u]<rank[ulp_v])
+            parent[ulp_u]=ulp_v;
+            
+        else if(rank[ulp_v]<rank[ulp_u])
+            parent[ulp_v]=ulp_u;
+            
+        else{
+            parent[ulp_v]=ulp_u;
+            rank[ulp_u]++;
+        }
+    }
+    
+     void UnionBySize(int u, int v){
+        int ulp_u = findUltimateParent(u);
+        int ulp_v = findUltimateParent(v);
+        if(ulp_u==ulp_v)  return;
+        if(size[ulp_u]<size[ulp_v]){
+            parent[ulp_u]=ulp_v;
+            size[ulp_u]+=size[ulp_v];
+        }
+        else{
+            parent[ulp_v]=ulp_u;
+            size[ulp_v]+=size[ulp_u];
+        }
+        
+    }
+};
+
+	//Function to find sum of weights of edges of the Minimum Spanning Tree.
+    int spanningTree(int V, vector<vector<int>> adj[]){
+        // craete edges from adjacency list
+        // TC - O(N+E)
+        vector<vector<int>>edges;
+        for(int i=0;i<V;i++){
+            for(auto it: adj[i]){
+                int adjNode=it[0];
+                int wt=it[1];
+                int node=i;
+                edges.push_back({wt,node,adjNode});
+            }
+        }
+
+       // TC - O( E x 4 x alpha x 2) 
+        DisjointSet ds(V);
+
+        // TC - O(N LOG E)
+        sort(edges.begin(),edges.end());
+        int maxWt=0;
+        for(auto it: edges){
+            int wt=it[0];
+            int u=it[1];
+            int v=it[2];
+            if(ds.findUltimateParent(u)!=ds.findUltimateParent(v)){
+                maxWt+=wt;
+                ds.UnionBySize(u,v);
+            }
+        }
+        return maxWt;
+    }
+
+TC - O(N LOGE)
+SC - O(N) N -> no of nodes or vertices
+
