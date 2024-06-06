@@ -1,0 +1,309 @@
+1) CUT ROD INTO SEGMENTS
+MEMOIZATION
+int solve(int n,int x,int y,int z,vector<int>&dp){
+	if(n==0) return 0;
+	if(n<0)  return INT_MIN;
+	if(dp[n]!=-1)  return dp[n];
+	int a=solve(n-x,x,y,z,dp)+1;
+	int b=solve(n-y,x,y,z,dp)+1;
+	int c=solve(n-z,x,y,z,dp)+1;
+	return dp[n]=max(a,max(b,c));
+}
+
+int cutSegments(int n, int x, int y, int z) {
+	vector<int>dp(n+1,-1);
+	int ans=solve(n,x,y,z,dp);
+	if(ans<0)  return 0;
+	return ans;
+}
+
+TABULATION
+int cutSegments(int n, int x, int y, int z) {
+	vector<int>dp(n+1);
+    dp[0]=0;
+	for(int i=1;i<=n;i++){
+		int a=INT_MIN,b=INT_MIN,c=INT_MIN;
+		if(x<=i)  a=dp[i-x]+1;
+		if(y<=i)  b=dp[i-y]+1;
+		if(z<=i)  c=dp[i-z]+1;
+		dp[i]=max({a,b,c});
+ 	}	
+    
+	if(dp[n]<0)  return 0;
+	return dp[n];
+}
+
+2) Count derangements
+long long int countDerangements(int n) {
+     long long int dp[n+1];
+     dp[0]=0;
+     dp[1]=0;
+     dp[2]=1;
+     for(long long int i=3;i<=n;i++){
+         dp[i]=(i-1)*(dp[i-1]+dp[i-2]);
+     }
+     return dp[n];
+}
+
+3) PAINTING FENCE ALGORITHM
+int numberOfWays(int n, int k) {
+    long long int dp[n+1];
+    dp[0]=0;  //0 elements
+    dp[1]=k;    //1 element - k col 
+    dp[2]=(k*k)%mod;
+    for(long long int i=3;i<=n;i++){
+        dp[i]=(dp[i-2]*(k-1)+dp[i-1]*(k-1)); // last 2 same with k-1 choice & last 1 diff with k-1 choices
+    }
+    return dp[n];
+}
+
+4) COMBINATION SUM IV - no of ways to make given target with infinite elements of an array
+int findWays(vector<int> &coins, int v){
+        int n=coins.size();
+        int dp[n][v+1];
+        dp[0][0]=1; // 0th index && 0 target sum
+	   for(int j=1;j<=v;j++){
+	      dp[0][j]=(j%coins[0]==0);
+	   }
+	   for(int i=1;i<n;i++){
+	       for(int j=0;j<=v;j++){
+	           int notTake=dp[i-1][j];
+	           int take=0;
+	           if(j>=coins[i]) take=dp[i][j-coins[i]] ;
+	           dp[i][j]=take+notTake;  
+	       }
+	   }
+	   return dp[n-1][v];
+    }
+
+5) Perfect Squares Problem
+int MinSquares(int n){
+	    vector<int>dp(n+1,INT_MAX);
+	    dp[0]=0;
+	    for(int i=1;i<=n;i++){
+	        for(int j=1;j*j<=i;j++){
+	            int temp=i-j*j;
+	            if(temp>=0){
+	                dp[i]=min(dp[i],1+dp[temp]);
+	            }
+	        }
+	    }
+	    return dp[n];
+	}
+
+6) Minimum Cost for Tickets
+
+M-1 DP 
+int solve(int n,vector<int>&days,vector<int>&cost,int index,vector<int>&dp){
+    //base case
+    if(index>=n)
+      return 0;
+    
+    if(dp[index]!=-1)
+      return dp[index];
+    
+    //1 day pass
+
+    int option1=cost[0]+solve(n,days,cost,index+1,dp);
+    
+    int i;
+    //7 days pass
+    for(i=index;i<n && days[i]<days[index]+7;i++);
+    
+    int option2=cost[1]+solve(n,days,cost,i,dp);
+
+    //30 days pass
+    for(i=index;i<n && days[i]<days[index]+30;i++);
+    
+    int option3=cost[2]+solve(n,days,cost,i,dp);
+
+    dp[index] = min(option1,min(option2,option3));
+    return dp[index];
+}
+
+int minimumCoins(int n, vector<int> days, vector<int> cost){
+   vector<int>dp(n+1,-1);
+   return solve(n,days,cost,0,dp);
+}
+
+M-2 USING QUEUE
+int minimumCoins(int n, vector<int> days, vector<int> cost){
+    int ans = 0;
+
+    queue<pair<int,int>> month;
+    queue<pair<int,int>> week;
+
+    for(int day:days){
+        // step 1 remove the expired days
+        while(!month.empty() && month.front().first + 30  <= day)
+            month.pop();
+
+        while(!week.empty() && week.front().first + 7     <= day)
+            week.pop();
+
+        // step 2 add cost for current day
+        week.push(make_pair(day, ans+ cost[1]));
+        month.push(make_pair(day, ans+ cost[2]));
+
+        // step 3 ans update
+        ans = min( ans+cost[0], min(week.front().second, month.front().second));
+    }
+    return ans;
+}
+
+7)  Maximum Size of Square
+     //Memoization 
+    int solveMem(int i,int j,int &maxSizeSquare, vector<vector<int>>&mat, vector<vector<int>>&dp){
+             if(i>=mat.size() || j>=mat[0].size()) {return 0;}
+             if(dp[i][j]!=-1) {return dp[i][j];}
+             int right=solveMem(i,j+1,maxSizeSquare,mat,dp);
+             int diagonal=solveMem(i+1,j+1,maxSizeSquare,mat,dp);
+             int down=solveMem(i+1,j,maxSizeSquare,mat,dp);
+             if(mat[i][j]==1){
+                 dp[i][j]=1+min({right,diagonal,down});
+                 maxSizeSquare=max(maxSizeSquare,dp[i][j]);
+                 return dp[i][j];
+             }
+             else{
+                 return dp[i][j]=0;
+             }
+             
+    } 
+     
+    //Tabulation
+    int solveTabulation(int n, int m, vector<vector<int>>&mat,int &maxSizeSquare){
+        vector<vector<int>>dp(n+1,vector<int>(m+1,0));
+        for(int i=n-1;i>=0;i--){
+            for(int j=m-1;j>=0;j--){
+             int right=dp[i][j+1];
+             int diagonal=dp[i+1][j+1];
+             int down=dp[i+1][j];
+             if(mat[i][j]==1){
+                 dp[i][j]=1+min({right,diagonal,down});
+                 maxSizeSquare=max(maxSizeSquare,dp[i][j]);
+            }
+         }
+      }
+    }
+    
+    //Space optimization
+      int solveSpaceOptimization(int n, int m, vector<vector<int>>&mat,int &maxSizeSquare){
+        vector<int>next(m+1,0);
+        for(int i=n-1;i>=0;i--){
+             vector<int>curr(m+1,0);
+            for(int j=m-1;j>=0;j--){
+             int right=curr[j+1];
+             int diagonal=next[j+1];
+             int down=next[j];
+             if(mat[i][j]==1){
+                 curr[j]=1+min({right,diagonal,down});
+                 maxSizeSquare=max(maxSizeSquare,curr[j]);
+            }
+         }
+         next=curr;
+      }
+    }
+    
+    //Main Code
+    
+    int maxSquare(int n, int m, vector<vector<int>> mat){
+        int maxSizeSquare=0;
+        // vector<vector<int>>dp(n,vector<int>(m,-1));
+        // solveMem(0,0,maxSizeSquare,mat,dp);
+        //solveTabulation(n,m,mat,maxSizeSquare);
+        solveSpaceOptimization(n,m,mat,maxSizeSquare);
+        return maxSizeSquare;
+    }
+
+8) Minimum Score Triangulation of Polygon
+
+    int solve(vector<int>& v,int i,int j,vector<vector<int>>&dp){
+        //base case
+        if(i+1==j)
+          return 0;
+        if(dp[i][j]!=-1)
+           return dp[i][j];
+        int ans=INT_MAX;
+        for(int k=i+1;k<j;k++){
+            ans = min(ans, v[i]*v[k]*v[j] + solve(v,i,k,dp) + solve(v,k,j,dp));
+        } 
+        return dp[i][j]=ans;
+    }
+    int minScoreTriangulation(vector<int>& values) {
+        int n=values.size();
+        vector<vector<int>>dp(n+1,vector<int>(n+1,-1));
+        return solve(values,0,n-1,dp);
+    } 
+
+9) REDUCING DISHES
+int solve(vector<int>&vec,int indx,int time,vector<vector<int>>&dp){
+        if(indx==vec.size())
+          return 0;
+        if(dp[indx][time]!=-1)
+           return dp[indx][time];
+        int include=vec[indx]*time+solve(vec,indx+1,time+1,dp);
+        int exclude=solve(vec,indx+1,time,dp);
+        return dp[indx][time]=max(include,exclude);
+    }
+    int maxSatisfaction(vector<int>& vec) {
+        sort(vec.begin(),vec.end());
+        int n=vec.size();
+        vector<vector<int>>dp(n+1,vector<int>(n+1,-1));
+        return solve(vec,0,1,dp);
+    }
+
+10) Pizza With 3n Slices
+int dp[505][200];
+    int solve(int start,int end,vector<int> &slices,int n){
+        if(n == 0 || start > end) return 0;
+        if(dp[start][n]!=-1) return dp[start][n];
+        int incl = slices[start] + solve(start+2,end,slices,n-1);
+        int excl = 0 + solve(start+1,end,slices,n);
+        return dp[start][n]=max(incl,excl);
+    }
+    int maxSizeSlices(vector<int>& slices) {
+        int k = slices.size();
+        memset(dp,-1,sizeof(dp));
+        int case1 = solve(0,k-2,slices,k/3);
+        memset(dp,-1,sizeof(dp));
+        int case2 = solve(1,k-1,slices,k/3);
+        return max(case1,case2);
+    }
+
+
+11) Maximum Height by Stacking Cuboids 
+
+// steps to solve this problem
+// 1. Sort the indivdual vector so that we got maximum height
+// 2. Sort the complete 3d vector so minimum l*b is at the top
+// 3. Use LIS ( basically ans will be reverse of the order but we need only int so no need).
+// 4. find the maximum element in whole dp arrray
+
+// O(N^2) time complexity
+    int maxHeight(vector<vector<int>> &cuboids){
+        int n = cuboids.size();
+        // sort every vector so that height is maximum in everyone
+        for (auto &c : cuboids){
+            sort(c.begin(), c.end());
+        }
+        // sorted so that we can use LIS
+        sort(cuboids.begin(), cuboids.end());  // increasing or ascending order
+        vector<int> dp(n, 0);
+        for (int i = 0; i < n; i++)
+        {
+            // height of that cuboid
+            dp[i] = cuboids[i][2];
+            for (int j = 0; j <= i - 1; j++)
+            {
+                if ((cuboids[i][0] >= cuboids[j][0]) && (cuboids[i][1] >= cuboids[j][1]) && (cuboids[i][2] >= cuboids[j][2]))
+                {
+                    dp[i] = max(dp[i], dp[j] + cuboids[i][2]);
+                }
+            }
+        }
+        int ans = *max_element(dp.begin(), dp.end());
+        return ans;
+    }
+
+
+12) 
