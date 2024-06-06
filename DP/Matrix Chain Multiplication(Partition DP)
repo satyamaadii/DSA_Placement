@@ -54,4 +54,401 @@ int matrixMultiplication(vector<int>& arr, int N) {
 TC - O(N*N*N)
 SC - O(N*N) 
 
-2) 
+2) MINIMUM COST TO CUT THE STICK
+
+MEMOIZATION
+// Function to calculate the minimum cost incurred
+int findMinimumCost(int i, int j, vector<int> &cuts, vector<vector<int>> &dp) {
+    // Base case: If i is greater than j, there are no cuts to consider.
+    if (i > j) {
+        return 0;
+    }
+
+    if (dp[i][j] != -1) {
+        return dp[i][j];
+    }
+
+    int mini = INT_MAX;
+
+    for (int ind = i; ind <= j; ind++) {
+        // Calculate the cost for making a cut at position 'ind'.
+        int ans = cuts[j + 1] - cuts[i - 1] +
+                  findMinimumCost(i, ind - 1, cuts, dp) +
+                  findMinimumCost(ind + 1, j, cuts, dp);
+
+        mini = min(mini, ans);
+    }
+
+    return dp[i][j] = mini;
+}
+
+// Function to compute the minimum cost
+int minimumCost(int n, int c, vector<int> &cuts) {
+    // Modify the cuts array by adding 0 at the beginning and 'n' at the end.
+    cuts.push_back(n);
+    cuts.insert(cuts.begin(), 0);
+    sort(cuts.begin(), cuts.end());
+
+    // Create a DP table to store calculated values.
+    vector<vector<int>> dp(c + 1, vector<int>(c + 1, -1));
+
+    // Call the recursive function to find the minimum cost.
+    return findMinimumCost(1, c, cuts, dp);
+}
+TC - O(N*N*N)
+SC - O(N*N) + O(N)
+
+TABULATION 
+int minimumCost(int n, int c, vector<int> &cuts) {
+    // Modify the cuts array by adding 0 at the beginning and 'n' at the end.
+    cuts.push_back(n);
+    cuts.insert(cuts.begin(), 0);
+    sort(cuts.begin(), cuts.end());
+
+    // Create a DP table to store calculated values.
+    vector<vector<int>> dp(c + 2, vector<int>(c + 2, 0));
+
+    for (int i = c; i >= 1; i--) {
+        for (int j = 1; j <= c; j++) {
+            if (i > j) continue;
+
+            int mini = INT_MAX;
+
+            for (int ind = i; ind <= j; ind++) {
+                // Calculate the cost for making a cut at position 'ind'.
+                int ans = cuts[j + 1] - cuts[i - 1] + dp[i][ind - 1] + dp[ind + 1][j];
+
+                mini = min(mini, ans);
+            }
+
+            dp[i][j] = mini;
+        }
+    }
+    return dp[1][c];
+}
+TC - O(N*N*N)
+SC - O(N*N) 
+
+3) BURST BALLOONS
+
+MEMOIZATION
+int maxCoinsHelper(int i, int j, vector<int> &nums, vector<vector<int>> &dp) {
+    if (i > j) return 0;
+    if (dp[i][j] != -1) return dp[i][j];
+    int maxCoins = INT_MIN;
+    
+    // Iterate through each possible balloon to burst last
+    for (int k = i; k <= j; k++) {
+        // Calculate the coins obtained by bursting the k-th balloon last
+        int coins = nums[i - 1] * nums[k] * nums[j + 1];
+        
+        // Recursively calculate the maximum coins for the remaining balloons
+        int remainingCoins = maxCoinsHelper(i, k - 1, nums, dp) + maxCoinsHelper(k + 1, j, nums, dp);
+        
+        // Update the maximum coins
+        maxCoins = max(maxCoins, coins + remainingCoins);
+    }
+    
+    return dp[i][j] = maxCoins;
+}
+
+// Function to calculate the maximum coins obtained
+int maxCoins(vector<int> &nums) {
+    int n = nums.size();
+    
+    // Add 1 to the beginning and end of the nums array
+    nums.insert(nums.begin(), 1);
+    nums.push_back(1);
+    
+    // Create a DP array for memoization
+    vector<vector<int>> dp(n + 2, vector<int>(n + 2, -1));
+    
+    // Call the helper function to compute the maximum coins
+    return maxCoinsHelper(1, n, nums, dp);
+}
+TC - O(N*N*N)
+SC - O(N*N) + O(N)
+
+TABULATION
+
+int maxCoins(vector<int> &nums) {
+    int n = nums.size();
+    
+    // Add 1 to the beginning and end of the nums array
+    nums.insert(nums.begin(), 1);
+    nums.push_back(1);
+    
+    // Create a DP array for memoization
+    vector<vector<int>> dp(n + 2, vector<int>(n + 2, 0));
+
+    for (int i = n; i >= 1; i--) {
+        for (int j = 1; j <= n; j++) {
+            if (i > j) continue;
+            int maxi = INT_MIN;
+            
+            // Iterate through each possible balloon to burst last
+            for (int ind = i; ind <= j; ind++) {
+                // Calculate the coins obtained by bursting the ind-th balloon last
+                int coins = nums[i - 1] * nums[ind] * nums[j + 1];
+                
+                // Calculate the maximum coins for the remaining balloons
+                int remainingCoins = dp[i][ind - 1] + dp[ind + 1][j];
+                
+                // Update the maximum coins
+                maxi = max(maxi, coins + remainingCoins);
+            }
+            
+            dp[i][j] = maxi;
+        }
+    }
+    
+    return dp[1][n];
+}
+TC - O(N*N*N)
+SC - O(N*N)
+
+4) EVALUATE BOOLEAN EXPRESSION TO TRUE
+
+MEMOIZATION
+int f(int i, int j, int isTrue, string &exp, vector<vector<vector<ll>>> &dp) {
+    // Base case 1: If i > j, it's an invalid expression, return 0.
+    if (i > j) return 0;
+    
+    // Base case 2: If i and j are the same, evaluate the single character.
+    if (i == j) {
+        if (isTrue == 1) return exp[i] == 'T' ? 1 : 0;
+        else return exp[i] == 'F' ? 1 : 0;
+    }
+
+    // If the result for this subproblem has been computed before, return it.
+    if (dp[i][j][isTrue] != -1) return dp[i][j][isTrue];
+    
+    ll ways = 0;
+    
+    // Iterate through the expression.
+    for (int ind = i + 1; ind <= j - 1; ind += 2) {
+        ll lT = f(i, ind - 1, 1, exp, dp);  // Number of ways to make the left expression true.
+        ll lF = f(i, ind - 1, 0, exp, dp);  // Number of ways to make the left expression false.
+        ll rT = f(ind + 1, j, 1, exp, dp);  // Number of ways to make the right expression true.
+        ll rF = f(ind + 1, j, 0, exp, dp);  // Number of ways to make the right expression false.
+
+        // Check the operator at the current index and update ways accordingly.
+        if (exp[ind] == '&') {
+            if (isTrue) ways = (ways + (lT * rT) % mod) % mod;
+            else ways = (ways + (lF * rT) % mod + (lT * rF) % mod + (lF * rF) % mod) % mod;
+        }
+        else if (exp[ind] == '|') {
+            if (isTrue) ways = (ways + (lF * rT) % mod + (lT * rF) % mod + (lT * rT) % mod) % mod;
+            else ways = (ways + (lF * rF) % mod) % mod;
+        }
+        else {  // XOR operator
+            if (isTrue) ways = (ways + (lF * rT) % mod + (lT * rF) % mod) % mod;
+            else ways = (ways + (lF * rF) % mod + (lT * rT) % mod) % mod;
+        }
+    }
+    
+    // Store the result in the DP table and return it.
+    return dp[i][j][isTrue] = ways;
+}
+
+int evaluateExp(string &exp) {
+    int n = exp.size();
+    vector<vector<vector<ll>>> dp(n, vector<vector<ll>>(n, vector<ll>(2, -1)));
+    return f(0, n - 1, 1, exp, dp);  // Start evaluation with isTrue set to true.
+}
+TC - O(N*N*N)
+SC - O(N*N)
+
+TABULATION
+int evaluateExp(string &exp) {
+    int n = exp.size();
+    vector<vector<vector<ll>>> dp(n, vector<vector<ll>>(n, vector<ll>(2, 0)));
+    
+    for (int i = n - 1; i >= 0; i--) {
+        for (int j = 0; j <= n - 1; j++) {
+            // Base case 1: i > j is an invalid case, so continue.
+            if (i > j) continue;
+            
+            for (int isTrue = 0; isTrue <= 1; isTrue++) {
+                // Base case 2: i == j, evaluate the single character.
+                if (i == j) {
+                    if (isTrue == 1) dp[i][j][isTrue] = exp[i] == 'T';
+                    else dp[i][j][isTrue] = exp[i] == 'F';
+                    continue;
+                }
+
+                // Recurrence logic:
+                ll ways = 0;
+                for (int ind = i + 1; ind <= j - 1; ind += 2) {
+                    ll lT = dp[i][ind - 1][1];
+                    ll lF = dp[i][ind - 1][0];
+                    ll rT = dp[ind + 1][j][1];
+                    ll rF = dp[ind + 1][j][0];
+
+                    if (exp[ind] == '&') {
+                        if (isTrue) ways = (ways + (lT * rT) % mod) % mod;
+                        else ways = (ways + (lF * rT) % mod + (lT * rF) % mod + (lF * rF) % mod) % mod;
+                    }
+                    else if (exp[ind] == '|') {
+                        if (isTrue) ways = (ways + (lF * rT) % mod + (lT * rF) % mod + (lT * rT) % mod) % mod;
+                        else ways = (ways + (lF * rF) % mod) % mod;
+                    }
+                    else {
+                        if (isTrue) ways = (ways + (lF * rT) % mod + (lT * rF) % mod) % mod;
+                        else ways = (ways + (lF * rF) % mod + (lT * rT) % mod) % mod;
+                    }
+                }
+                dp[i][j][isTrue] = ways;
+            }
+        }
+    }
+    return dp[0][n - 1][1];
+}
+TC - O(N*N*N)
+SC - O(N*N)
+
+4) PALINDROME PARTITIONING
+MEMOIZATION
+bool isPalindrome(int i, int j, string &s) {
+    while (i < j) {
+        if (s[i] != s[j]) return false;
+        i++;
+        j--;
+    }
+    return true;
+}
+
+// Recursive function to find the minimum number of partitions to make palindromes.
+int minPartitions(int i, int n, string &str, vector<int> &dp) {
+    // Base case: If we've reached the end of the string.
+    if (i == n) return 0;
+
+    if (dp[i] != -1) return dp[i];
+    int minCost = INT_MAX;
+    // Consider all possible substrings starting from the current index.
+    for (int j = i; j < n; j++) {
+        if (isPalindrome(i, j, str)) {
+            // If the substring is a palindrome, calculate the cost and minimize it.
+            int cost = 1 + minPartitions(j + 1, n, str, dp);
+            minCost = min(minCost, cost);
+        }
+    }
+    return dp[i] = minCost;
+}
+
+// Main function to find the minimum number of partitions for palindrome partitioning.
+int palindromePartitioning(string str) {
+    int n = str.size();
+    vector<int> dp(n, -1);
+    // Calling the recursive function and subtracting 1 as it counts partitions, not cuts.
+    return minPartitions(0, n, str, dp) - 1;
+}
+TC - O(N*N)
+SC - O(N)
+
+TABULATION
+bool isPalindrome(int i, int j, string &s) {
+    while (i < j) {
+        if (s[i] != s[j]) return false;
+        i++;
+        j--;
+    }
+    return true;
+}
+
+// Function to find the minimum number of partitions for palindrome partitioning.
+int palindromePartitioning(string str) {
+    int n = str.size();
+    // Create a DP array to store the minimum number of partitions.
+    vector<int> dp(n + 1, 0);
+    dp[n] = 0; // Initialize the last element to 0.
+
+    // Loop through the string in reverse order.
+    for (int i = n - 1; i >= 0; i--) {
+        int minCost = INT_MAX;
+        // Consider all possible substrings starting from the current index.
+        for (int j = i; j < n; j++) {
+            if (isPalindrome(i, j, str)) {
+                // If the substring is a palindrome, calculate the cost and minimize it.
+                int cost = 1 + dp[j + 1];
+                minCost = min(minCost, cost);
+            }
+        }
+        dp[i] = minCost;
+    }
+    // Subtract 1 as it counts partitions, not cuts.
+    return dp[0] - 1;
+}
+TC - O(N*N)
+SC - O(N)
+
+
+5) Partition Array for Maximum Sum
+int f(int ind, vector<int> &num, int k, vector<int> &dp) {
+    int n = num.size();
+
+    // Base case: If the current index is equal to the size of the array, return 0.
+    if (ind == n) return 0;
+
+    // If the result for this index is already computed, return it from dp array.
+    if (dp[ind] != -1) return dp[ind];
+
+    int len = 0;
+    int maxi = INT_MIN;
+    int maxAns = INT_MIN;
+
+    // Loop through the array starting from the current index.
+    for (int j = ind; j < min(ind + k, n); j++) {
+        len++;
+        maxi = max(maxi, num[j]);
+        int sum = len * maxi + f(j + 1, num, k, dp);
+        maxAns = max(maxAns, sum);
+    }
+
+    // Store the computed result in the dp array and return it.
+    return dp[ind] = maxAns;
+}
+
+int maxSumAfterPartitioning(vector<int>& num, int k) {
+    int n = num.size();
+    vector<int> dp(n, -1);
+    return f(0, num, k, dp);
+}
+TC - O(N*K)
+SC - O(N)
+
+TABULATION
+int maxSumAfterPartitioning(vector<int>& num, int k) {
+    int n = num.size();
+    
+    // Create a DP array to store the maximum sum.
+    vector<int> dp(n + 1, 0);
+    
+    // Iterate through the array from right to left.
+    for (int ind = n - 1; ind >= 0; ind--) {
+        int len = 0;
+        int maxi = INT_MIN;
+        int maxAns = INT_MIN;
+        
+        // Loop through the next k elements (or remaining elements if k is smaller).
+        for (int j = ind; j < min(ind + k, n); j++) {
+            len++;
+            maxi = max(maxi, num[j]);
+            int sum = len * maxi + dp[j + 1];
+            maxAns = max(maxAns, sum);
+        }
+        
+        // Store the computed maximum sum in the DP array.
+        dp[ind] = maxAns;
+    }
+    
+    // The maximum sum after partitioning the entire array is stored in dp[0].
+    return dp[0];
+}
+TC - O(N*K)
+SC - O(N)
+
+
+
+
+
