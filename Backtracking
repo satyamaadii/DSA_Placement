@@ -1,0 +1,123 @@
+1) RAT IN A MAZE PROBLEM
+bool isSafe(int x, int y, vector<vector<int>> &visited, int n, vector<vector<int>> arr ){
+    if((x >=0 && x<=n-1) && (y>=0 && y<=n-1) && visited[x][y] == 0 && arr[x][y] == 1){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+void solve(vector<vector<int>> arr, int n, vector<string> &ans, int x, int y, vector<vector<int>> &visited, string path ){
+    // base case
+    if(x == n-1 && y == n-1){
+        ans.push_back(path);
+        return;
+    }
+    // marking the visited index 1 to avoid reuse
+    visited[x][y] = 1;
+    // we have 4 choices ( L, R, D, U)
+    // down D
+    int newx = x+1;
+    int newy = y;
+    if(isSafe(newx, newy, visited, n, arr)){
+        path.push_back('D');
+        solve(arr, n, ans, newx, newy, visited, path);
+        path.pop_back();
+    }
+    // left L
+    newx = x;
+    newy = y-1;
+    if(isSafe(newx, newy, visited, n, arr)){
+        path.push_back('L');
+        solve(arr, n, ans, newx, newy, visited, path);
+        path.pop_back();
+    }
+    // right R
+    newx = x;
+    newy = y+1;
+    if(isSafe(newx, newy, visited, n, arr)){
+        path.push_back('R');
+        solve(arr, n, ans, newx, newy, visited, path);
+        path.pop_back();
+    }
+    // up U
+    newx = x-1;
+    newy = y;
+    if(isSafe(newx, newy, visited, n, arr)){
+        path.push_back('U');
+        solve(arr, n, ans, newx, newy, visited, path);
+        path.pop_back();
+    }
+    // unmarking the visited index while backtracking
+    visited[x][y] = 0;
+}
+
+vector<string>searchMaze(vector<vector<int>>&arr, int n){
+    vector<string> ans;
+    // condition if the very first srcx place is 0
+    if(arr[0][0] == 0){
+        return ans;
+    }
+    // source of the rat (0,0)
+    int srcx = 0, srcy = 0;
+    // creating a visited array to mark the visited places with 1
+    vector<vector<int>> visited(n,vector<int>(n,0));
+    // creating string to save the path
+    string path;
+    solve(arr, n, ans, srcx, srcy, visited, path);
+    // sorting the ans
+    sort(ans.begin(), ans.end());
+    return ans;
+}
+TC -> pow(4, NxN)
+SC -> O(NxN)
+
+2) N QUEENS PROBLEM 
+void addSolution(vector<vector<int>> & board, vector<vector<int>> & answer, int n){
+    vector<int> temp;
+    for(int i=0;i<n;i=i+1){
+        for(int j=0;j<n;++j){
+            temp.push_back(board[i][j]);
+        }
+    }
+    answer.push_back(temp);
+}
+
+bool safe(int row, int column, vector<vector<int>> & board, int n){
+    int x = row;
+    int y = column;
+    //  Check for same row:
+    while(y >= 0) if(board[x][y--] == 1) return false;
+    x = row;
+    y = column;
+    //  Check for diagnol (left, Up):
+    while(x >= 0 && y >= 0) if(board[x--][y--] == 1) return false;
+    x = row;
+    y = column;
+    //  Check for diagonal (left, Down):
+    while(x < n && y >= 0) if(board[x++][y--] == 1) return false;
+    return true;
+}
+
+void solve(int column, vector<vector<int>> & board, vector<vector<int>> & answer, int n){
+    if(column == n){
+        addSolution(board, answer, n);
+        return;
+    }
+    for(int row=0;row<n;++row){
+        if(safe(row, column, board, n)){
+            board[row][column] = 1;
+            solve(column+1, board, answer, n);
+            board[row][column] = 0;
+        }
+    }
+}
+vector<vector<int>> nQueens(int n){
+    vector<vector<int>> board(n, vector<int> (n, 0));
+    vector<vector<int>> answer;
+    solve(0, board, answer, n);
+    return answer;
+}
+TC -> O(N!)
+SC - O(N*N)
