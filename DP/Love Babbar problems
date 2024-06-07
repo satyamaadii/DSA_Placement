@@ -306,4 +306,76 @@ int dp[505][200];
     }
 
 
-12) 
+12) Minimum Swaps To Make Sequences Increasing
+int solve(vector<int>& nums1, vector<int>& nums2, int indx,int swappedPrev,vector<vector<int>>&dp){
+        if(indx>=nums1.size())  return 0;
+        if(dp[indx][swappedPrev]!=-1) return dp[indx][swappedPrev];
+        int prev1=nums1[indx-1];
+        int prev2=nums2[indx-1];
+        int ans=INT_MAX;
+        if(swappedPrev) swap(prev1,prev2);
+        if(nums1[indx]>prev1 && nums2[indx]>prev2) ans=solve(nums1,nums2,indx+1,0,dp);
+        if(nums1[indx]>prev2 && nums2[indx]>prev1) ans=min(ans,1+solve(nums1,nums2,indx+1,1,dp));
+        return dp[indx][swappedPrev]=ans;
+    }
+    int minSwap(vector<int>& nums1, vector<int>& nums2) {
+        nums1.insert(nums1.begin(),-1);
+        nums2.insert(nums2.begin(),-1);
+        int n=nums1.size();
+        vector<vector<int>>dp(n+1,vector<int>(2,-1));
+        return solve(nums1,nums2,1,0,dp);
+    }
+
+13) Longest Arithmetic Progression
+    int lengthOfLongestAP(int A[], int n) {
+        if(n <= 2) return n;
+        int ans = 0;
+        unordered_map<int,int>dp[n+1];
+        for(int i = 1; i<n; i++){
+            for(int j=0; j<i; j++){
+                
+                int diff = A[i]-A[j];
+                int cnt = 1;
+                
+                //check if answer already present 
+                if(dp[j].count(diff)){
+                    cnt = dp[j][diff];
+                }
+                
+                dp[i][diff] = 1+cnt;
+                ans = max(ans,dp[i][diff]);
+            }
+        }
+        return ans;
+    }
+
+14) Longest arithmetic subsequence with given difference
+  int longestSubsequence(vector<int>& arr, int difference) {
+    int ans = 0;
+    unordered_map<int, int> lengthAt;
+    for (const int a : arr) {
+      if (lengthAt.count(a - difference))
+        lengthAt[a] = lengthAt[a - difference] + 1;
+      else
+        lengthAt[a] = 1;
+      ans = max(ans, lengthAt[a]);
+    }
+    return ans;
+  }
+
+15) UNIQUE BINARY SEARCH TREES
+int numTrees(int n) {
+        vector<int>dp(n+1,-1);
+        dp[0]=1;
+        dp[1]=1;
+        for(int i=2;i<=n;i++){
+            int sum=0;
+            for(int j=1;j<=i;j++){
+                sum+=dp[j-1]*dp[i-j];
+            }
+            dp[i]=sum;
+        }
+        return dp[n];
+    }
+
+Question 16, 27 & 28 pending
