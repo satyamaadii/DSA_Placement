@@ -1,0 +1,21 @@
+DATA STRUCUTRE - COMPLETE BINARY TREE THAT COMES WITH A HEAP ORDER PROPERTY
+BT - ATMOST 2 CHILD
+COMPLETE BT - EVERY LEVEL IS COMPLETELY FILLED EXCEPT THE LAST LEVEL, NODES ALWAYS FILLED TOWARDS THE LEFT
+
+1) Kth smallest element
+  int kthSmallest(int arr[], int l, int r, int k) {
+        //code here
+        int n=r+1;
+        priority_queue<int>maxh;
+        for(int i=0;i<n;i++){
+            maxh.push(arr[i]);
+            if(maxh.size()>k){
+                maxh.pop();
+            }
+        }
+        return maxh.top();
+    }
+TC - O(N LOG N)
+SC - O(K)
+
+2)
