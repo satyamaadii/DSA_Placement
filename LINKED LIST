@@ -1,0 +1,61 @@
+STRIVER
+1) REVERSE A LINKED LIST
+ITERATIVE APPROACH
+Node* reverseList(Node *head){
+        //empty linked list or single element linked list  case
+        if(head==NULL || head->next==NULL)  return head;
+        // 2 or more elements
+        Node* prev = NULL;
+        Node* curr = head;
+        Node* forward = NULL;
+        while(curr!=NULL){
+            forward = curr->next;
+            curr->next = prev;
+            prev=curr;
+            curr=forward;
+        }
+        Node* newHead = prev;
+        return newHead;
+    }
+TC - O(N)
+SC - O(1)
+RECURSIVE APPROACH
+Node* reverseList(Node *head){
+        if(head==NULL || head->next==NULL) return head;
+        Node* newHead=reverseList(head->next);
+        Node* next=head->next;
+        next->next=head;
+        head->next=NULL;
+        return newHead;
+    }
+TC - O(N)
+SC - O(N)  // STACK SPACE
+
+2) Remove Nth Node From End of Linked List
+    int getLen(ListNode* head){
+        int len=0;
+        while(head){
+            len++;
+            head=head->next;
+        }
+        return len;
+    }
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        int len=getLen(head);
+        if(n>len)  return head;
+        if(n==len) return head->next;
+        int start=len-n;
+        ListNode* prev=NULL;
+        ListNode* curr=head;
+        while(start-- && curr!=NULL){
+            prev=curr;
+            curr=curr->next;
+        }
+        prev->next=curr->next;
+        delete curr;
+        return head;
+    }
+TC - O(N)
+SC - O(1)
+
+
