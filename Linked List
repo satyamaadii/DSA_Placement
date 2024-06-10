@@ -1,0 +1,174 @@
+STRIVER
+1) REVERSE A LINKED LIST
+ITERATIVE APPROACH
+Node* reverseList(Node *head){
+        //empty linked list or single element linked list  case
+        if(head==NULL || head->next==NULL)  return head;
+        // 2 or more elements
+        Node* prev = NULL;
+        Node* curr = head;
+        Node* forward = NULL;
+        while(curr!=NULL){
+            forward = curr->next;
+            curr->next = prev;
+            prev=curr;
+            curr=forward;
+        }
+        Node* newHead = prev;
+        return newHead;
+    }
+TC - O(N)
+SC - O(1)
+RECURSIVE APPROACH
+Node* reverseList(Node *head){
+        if(head==NULL || head->next==NULL) return head;
+        Node* newHead=reverseList(head->next);
+        Node* next=head->next;
+        next->next=head;
+        head->next=NULL;
+        return newHead;
+    }
+TC - O(N)
+SC - O(N)  // STACK SPACE
+
+2) Remove Nth Node From End of Linked List
+FINDING LENGTH OF LINKED LIST
+    int getLen(ListNode* head){
+        int len=0;
+        while(head){
+            len++;
+            head=head->next;
+        }
+        return len;
+    }
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        int len=getLen(head);
+        if(n>len)  return head;
+        if(n==len) return head->next;
+        int start=len-n;
+        ListNode* prev=NULL;
+        ListNode* curr=head;
+        while(start-- && curr!=NULL){
+            prev=curr;
+            curr=curr->next;
+        }
+        prev->next=curr->next;
+        delete curr;
+        return head;
+    }
+TC - O(2N)
+SC - O(1)
+
+USING SLOW & FAST POINTERS
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode * start = new ListNode();
+        start -> next = head;
+        ListNode* fast = start;
+        ListNode* slow = start;     
+        for(int i = 1; i <= n; ++i)
+            fast = fast->next;
+        while(fast->next != NULL){
+            fast = fast->next;
+            slow = slow->next;
+        }
+        slow->next = slow->next->next;
+        return start->next;
+        }
+TC - O(N)
+SC - O(1)
+
+3) Middle of the Linked List
+    int getlength(Node *head){
+        int len=0;
+        while(head!=NULL){
+            len++;
+            head=head->next;
+        }
+        return len;
+    }
+    int getMiddle(Node *head){
+        //empty Linked List
+        if(head==NULL) return -1;
+        int len = getlength(head);
+        Node* curr = head;
+        int temp = len/2; // for 2nd element print add 1 to it 
+        int cnt=0;
+        while(cnt<temp){
+            curr=curr->next;
+            cnt++;
+        }
+        return curr->data;
+    }
+TC - O(N)+O(N/2)
+SC - O(1)
+
+USING HARE - TORTOISE METHOD (SLOW & FAST POINTERS)
+  ListNode* middleNode(ListNode* head) {
+        ListNode* slow = head, *fast = head;
+        while (fast && fast->next){
+            slow = slow->next;
+            fast = fast->next->next;
+         }
+        return slow;
+    }
+TC - O(N/2)
+SC - O(1)
+
+4) Merge Two Sorted Lists
+IN EXTRA SPACE
+Node* sortedMerge(Node* head1, Node* head2)  {  
+    if(head1==NULL) return head2;
+    if(head2==NULL) return head1;
+    Node* newHead=new Node(-1);
+    Node* temp=newHead;
+    while(head1!=NULL && head2!=NULL){
+         if(head1->data <= head2->data){ temp->next=head1; temp=temp->next; head1=head1->next; }
+         else { temp->next=head2; temp=temp->next; head2=head2->next; }
+    }
+    if(head1!=NULL){
+        temp->next=head1;
+    }
+    if(head2!=NULL){
+        temp->next=head2;
+    }
+    return newHead->next;
+}
+TC - O(N1+N2)
+SC - O(N1+N2)
+
+IN CONSTANT SPACE
+Node* sortedMerge(Node* head1, Node* head2)  {  
+    if(head1==NULL) return head2;
+    if(head2==NULL) return head1;
+    if(head1->data > head2->data) swap(head1,head2);
+    Node* newHead=head1;
+    while(head1!=NULL && head2!=NULL){
+         Node* temp=NULL;
+         while(head1!=NULL && head1->data<=head2->data){
+              temp=head1;
+              head1=head1->next;
+         }
+         temp->next=head2;
+         swap(head1,head2);
+    }
+    return newHead;
+}  
+TC - O(N1+N2)
+SC - O(1)
+
+5) DELETE NODE IN A LINKED LIST
+    void deleteNode(ListNode* node) {
+         //delete the node given , head of linked list not given
+         if(node->next==NULL){
+              node=NULL;
+              return;
+         }
+         //1) copy the value next to node
+         node->val=node->next->val;
+         //2) chane links 
+         node->next=node->next->next;
+    }
+TC - O(1)
+SC - O(1)
+
+6) 
