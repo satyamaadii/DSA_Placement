@@ -1,3 +1,5 @@
+https://www.youtube.com/watch?v=q8gdBn9RPeI&list=PLDzeHZWIZsTr54_TH_NK4ibFojS4mmQA6&index=1&ab_channel=CodeHelp-byBabbar
+
 STRIVER
 1) REVERSE A LINKED LIST
 ITERATIVE APPROACH
@@ -531,3 +533,248 @@ Node *flatten(Node *root){
 TC - O(SUMMATION OF TOTAL NO OF NODES)
 SC - O(1)
 
+13) ROTATE LL TO RIGHT
+    ListNode* rotateRight(ListNode* head, int k) {
+        if(head==NULL) return head;
+        int len=1; // number of nodes
+        ListNode *newH, *tail;
+        newH=tail=head;
+        
+        while(tail->next)  // get the number of nodes in the list
+        {
+            tail = tail->next;
+            len++;
+        }
+        tail->next = head; // circle the link
+
+        if(k %= len) {
+            for(auto i=0; i<len-k; i++) tail = tail->next; // the tail node is the (len-k)-th node (1st node is head)
+        }
+        newH = tail->next; 
+        tail->next = NULL;
+        return newH;
+    }
+TC - O(N)
+SC - O(1)
+
+14) CLONE OF A LL (TOUGH) https://www.youtube.com/watch?v=VNf6VynfpdM&list=PLgUwDviBIf0r47RKH7fdWN54AbWFgGuii&index=14&ab_channel=takeUforward
+https://www.youtube.com/watch?v=83mPr0i56Gg&list=PLDzeHZWIZsTr54_TH_NK4ibFojS4mmQA6&index=9&ab_channel=CodeHelp-byBabbar    
+Node* copyRandomList(Node* head) {
+          Node *iter = head; 
+          Node *front = head;
+          // First round: make copy of each node and link them together side-by-side in a single list.
+          while (iter != NULL) {
+            front = iter->next;
+            Node *copy = new Node(iter->val);
+            iter->next = copy;
+            copy->next = front;
+            iter = front;
+          }
+          // Second round: assign random pointers for the copy nodes.
+          iter = head;
+          while (iter != NULL) {
+            if (iter->random != NULL) {
+              iter->next->random = iter->random->next;
+            }
+            iter = iter->next->next;
+          }
+          // Third round: restore the original list, and extract the copy list.
+          iter = head;
+          Node *pseudoHead = new Node(0);
+          Node *copy = pseudoHead;
+          while (iter != NULL) {
+            front = iter->next->next;
+            // extract the copy
+            copy->next = iter->next;
+            // restore the original list
+            iter->next = front;   
+            copy = copy -> next; 
+            iter = front;
+          }
+          return pseudoHead->next;
+    }
+TC - O(N) + O(N) + O(N) = O(3N)
+SC - O(1)
+
+15) MERGE SORT IN LL
+node* findMid(node* head){
+    node* slow =head;
+    node* fast = head-> next;
+    while(fast != NULL && fast -> next != NULL){
+        slow = slow -> next;
+        fast = fast -> next -> next;
+    }
+    return slow;
+}
+ 
+node* merge(node* left , node* right){
+     if(left == NULL) return right;
+     if(right == NULL) return left;
+     node* ans = new node(-1);
+     node* temp = ans;
+     //merge 2 sorted linked list
+     while(left != NULL && right != NULL){
+         if(left -> data < right -> data){
+            temp -> next =left;
+            temp = left;
+            left = left-> next;
+         }
+         else{
+            temp -> next =right;
+            temp =right;
+            right =right-> next;
+         }
+     }
+      if(left!=NULL) temp->next=left;
+      if(right!=NULL) temp->next=right;
+      node* newHead = ans -> next;
+      return newHead;
+}
+
+node* mergeSort(node *head) {
+    if(head == NULL | head -> next == NULL){
+        return head;
+    }
+    // break linked list into 2 halves , after finding mid
+    node* mid = findMid(head);
+    node* left = head;
+    node* right = mid-> next;
+    mid-> next = NULL;
+    //recursive sort to sort both halves
+    left = mergeSort(left);
+    right = mergeSort(right);
+    //merge both left and right
+    node* result = merge(left , right);
+    return result;
+}
+TC - O(NLOGN)
+SC - O(LOGN)
+
+16) Merge Two Sorted Linked Lists
+Node<int>* solve(Node<int>* first, Node<int>* second){
+    if(first->next == NULL){
+        first->next= second;
+        return first;
+    }
+     Node<int>* curr1 = first;
+     Node<int>* next1 = curr1->next;
+     Node<int>* curr2 = second;
+     Node<int>* next2 = curr2->next;
+     
+    while(next1!=NULL && curr2!=NULL){
+        if(curr2->data <= next1->data && curr2->data >= curr1->data ){
+            //add nodes in between first list
+            curr1->next = curr2;
+            next2 = curr2->next;
+            curr2->next = next1;
+            //update the pointers
+            curr1 = curr2;
+            curr2 = next2;
+        }
+        else{
+            curr1 = next1;
+            next1 = next1->next;
+            if(next1==NULL){
+                curr1->next = curr2;
+                return first;
+            }      
+        }
+    }
+}
+
+Node<int>* sortTwoLists(Node<int>* first, Node<int>* second){
+    if(first == NULL) return second;
+    if(second == NULL) return first;
+    if(first->data <= second->data){
+         solve(first,second);
+         return first;
+    }
+    else{
+         solve(second,first);
+         return second;
+    }
+}
+TC - O(N)
+SC - O(1)
+
+17) Sort linked list of 0s 1s 2s
+Node* sortList(Node *head){
+   int zero=0,one=0,two=0;
+   Node* curr=head;
+   while(curr!=NULL){
+       int value=curr->data;
+       if(value==0)  zero++;
+       else if(value==1)  one++;
+       else if(value==2)  two++;
+       curr=curr->next;
+   }
+   curr=head;
+   while(curr!=NULL){
+       if(zero){
+           curr->data=0;
+           zero--;
+       }
+       else if(one){
+           curr->data=1;
+           one--;
+       }
+       else if(two){
+           curr->data=2;
+           two--;
+       }
+       curr=curr->next;
+   }
+   return head;
+}
+TC - O(2N)
+SC - O(1)
+
+18)  Remove duplicates from a sorted Doubly Linked List
+Node* uniqueSortedList(Node* head) {
+    if(head==NULL) return NULL;
+    Node* curr=head;
+    while(curr){
+       if(curr->next && curr->data==curr->next->data){
+           curr->next=curr->next->next;
+       } 
+       else {
+         curr = curr->next;
+       }
+    }
+    return head;
+}
+TC - O(N)
+SC - O(1)
+
+19) Remove Duplicates From an Unsorted Linked List
+Node *removeDuplicates(Node *head){
+       unordered_map<int,int>mp;
+       Node* curr = head;
+       mp[curr->data] = 1;
+       Node* prev = curr;
+       curr = curr->next;
+       while(curr!=NULL){
+           if(mp[curr->data]==1){
+               prev->next = curr->next;
+               curr = prev->next;
+           }
+           else{
+               mp[curr->data]=1;
+               prev = curr;
+               curr = prev->next;
+           }
+       }
+       return head;
+}
+TC - O(N)
+SC - O(N)
+
+20) Check if it is circular or not
+bool isCircular(Node *head){
+    if(head==NULL || head->next==NULL) return 0;
+    if(head->next==head)  return 1;
+    Node* temp=head->next;
+    while(temp!=NULL && temp!=head) temp=temp->next;
+    if(temp==NULL)  return false;
+    if(temp==head)  return true;
+}
