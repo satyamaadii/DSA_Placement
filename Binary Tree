@@ -457,7 +457,6 @@ void solve(Node *root, vector<int>&ans,int level){
      solve(root->left,ans,level+1);
      solve(root->right,ans,level+1);
 }
-
 vector<int> leftView(Node *root){
    vector<int>ans;
    solve(root,ans,0);
@@ -475,7 +474,6 @@ bool solve(Node* head1,Node* head2){
           if(head1!=NULL && head2!=NULL && head1->data!=head2->data) return false;
          return solve(head1->left,head2->right) && solve(head1->right,head2->left);
     }
-    
     bool isSymmetric(Node* root){
       if(root==NULL)  return true;
 	    Node* head1=root->left;
@@ -494,7 +492,6 @@ void binaryTreePaths(vector<string>& result, TreeNode* root, string t) {
     if(root->left)  binaryTreePaths(result, root->left, t + "->" + to_string(root->left->val));
     if(root->right) binaryTreePaths(result, root->right, t + "->" + to_string(root->right->val));
 }
-
 vector<string> binaryTreePaths(TreeNode* root) {
     vector<string> result;
     if(!root) return result;
@@ -505,7 +502,7 @@ TC - O(N)
 SC - O(H)
 
 Lowest Common Ancestor in a Binary Tree
-  Node* lca(Node* root ,int n1 ,int n2 ){
+Node* lca(Node* root ,int n1 ,int n2 ){
        //base case
        if(root==NULL || root->data==n1 || root->data==n2){
            return root;
@@ -526,4 +523,202 @@ Lowest Common Ancestor in a Binary Tree
     }
 TC - O(N)
 SC - O(H)
+
+Maximum Width of BT
+int widthOfBinaryTree(TreeNode* root) {
+        if(root==NULL) return 0;
+        queue<pair<TreeNode*,int>> q;
+        int ans=0;
+        q.push({root,0});
+        while(!q.empty()){
+            int minn= q.front().second;
+            int first;
+            int last;
+            int size = q.size();
+            for(int i=0;i<size;i++){
+                 long long cur_ind = q.front().second-minn;
+                 TreeNode *node = q.front().first;
+                  q.pop();
+                  if(i==0) {
+                      first = cur_ind;
+                  }
+                  if(i==size-1){
+                     last = cur_ind;
+                  }
+                  if(node->left){
+                   q.push({node->left,2*cur_ind+1});
+                  }
+                  if(node->right){
+                   q.push({node->right,2*cur_ind+2});
+                  }
+            }
+            ans = max(ans,last-first+1);
+        }
+        return ans;
+    }
+TC - O(N)
+SC - O(N)
+
+CHILDREN SUM PROPERTY
+void changeTree(TreeNode* root) {
+        if (root == NULL) return;
+        int child = 0;
+        if (root->left) {
+            child += root->left->val;
+        }
+        if (root->right) {
+            child += root->right->val;
+        }
+        if (child >= root->val) {
+            root->val = child;
+        } else {
+            // If the sum is smaller, update the child with the current node's value.
+            if (root->left) {
+                root->left->val = root->val;
+            } else if (root->right) {
+                root->right->val = root->val;
+            }
+        }
+        // Recursively call the function on the left and right children.
+        changeTree(root->left);
+        changeTree(root->right);
+
+        // Calculate the total sum of the values of the left and right children, if they exist.
+        int tot = 0;
+        if (root->left) {
+            tot += root->left->val;
+        }
+        if (root->right) {
+            tot += root->right->val;
+        }
+        // If either left or right child exists, update the current node's value with the total sum.
+        if (root->left or root->right) {
+            root->val = tot;
+        }
+    }
+TC - O(N)
+SC - O(N)  
+
+All Nodes Distance K in Binary Tree
+void findParent(unordered_map<TreeNode*,TreeNode*>&parent,TreeNode* node){
+         if(node->left){
+             parent[node->left]=node;
+             findParent(parent,node->left);
+         }
+         if(node->right){
+             parent[node->right]=node;
+             findParent(parent,node->right);
+         }
+    }
+    void findNode(TreeNode* node, int k, unordered_map<TreeNode*,TreeNode*>&parent, vector<int>&ans,unordered_map<TreeNode*,bool>vis){
+        vis[node]=true;
+        if(k==0){
+            ans.push_back(node->val);
+            return; 
+        }
+        if(node->left && !vis[node->left]){
+            findNode(node->left,k-1,parent,ans,vis);
+        }
+        if(node->right && !vis[node->right]){
+            findNode(node->right,k-1,parent,ans,vis);
+        }
+        if(parent[node]!=NULL && !vis[parent[node]]){
+            findNode(parent[node],k-1,parent,ans,vis);
+        }
+    }
+    vector<int> distanceK(TreeNode* root, TreeNode* target, int k) {
+        if(root==NULL) return {};
+        //parent find karo
+        unordered_map<TreeNode*,TreeNode*>parent; 
+        parent[root]=NULL;
+        findParent(parent,root);
+        //find nodes at distance
+        vector<int>ans;
+        unordered_map<TreeNode*,bool>vis;
+        findNode(target,k,parent,ans,vis);
+        return ans;
+    }
+TC - O(N)
+SC - O(N)
+
+Minimum time taken to BURN the Binary Tree from a Node
+int minTime(Node* root, int target) {
+        if(root==NULL)  return 0;
+        // find parent BFS
+        unordered_map<Node*,Node*>parent;
+        queue<Node*>q;
+        q.push(root);
+        parent[root]=NULL;
+        Node* targetNode=NULL;
+        while(!q.empty()){
+            Node* curr=q.front();
+            q.pop();
+            if(curr->data==target) targetNode=curr;
+            if(curr->left){
+                q.push(curr->left);
+                parent[curr->left]=curr;
+            }
+            if(curr->right){
+                q.push(curr->right);
+                parent[curr->right]=curr;
+            }
+        }
+        if(targetNode==NULL) return 0;
+        vector<int>ans;
+        unordered_map<Node*,bool>vis;
+        queue<pair<Node*,int>>q1;
+        q1.push({targetNode,0});
+        vis[targetNode]=1;
+        int burnTime=0;
+        while(!q1.empty()){
+            Node* curr=q1.front().first;
+            int dist=q1.front().second;
+            q1.pop();
+            burnTime=max(burnTime,dist);
+            if(curr->left!=NULL && !vis[curr->left]){
+                q1.push({curr->left,dist+1});
+                vis[curr->left]=1;
+            }
+            if(curr->right!=NULL && !vis[curr->right]){
+                q1.push({curr->right,dist+1});
+                vis[curr->right]=1;
+            }
+            if(parent[curr]!=NULL && !vis[parent[curr]]){
+                q1.push({parent[curr],dist+1});
+                vis[parent[curr]]=1;
+            }
+        }
+        return burnTime;
+    }
+TC - O(N)
+SC - O(N)
+
+Count Complete Tree Nodes
+int countNodes(TreeNode* root){
+        if(root==NULL)  return 0;
+        int lh=findHeightLeft(root);
+        int rh=findHeightRight(root);
+        if(lh==rh) return (1<<lh)-1;
+        return 1+countNodes(root->left)+countNodes(root->right);
+    }
+int findHeightLeft(TreeNode* root){
+        if(root==NULL)  return 0;
+        int height=0;
+        while(root){
+            height++;
+            root=root->left;
+        }
+        return height;
+    }
+int findHeightRight(TreeNode* root){
+        if(root==NULL)  return 0;
+        int height=0;
+        while(root){
+            height++;
+            root=root->right;
+        }
+        return height;
+    }
+TC - O(LOGN * LOGN)
+SC - O(LOGN)
 
