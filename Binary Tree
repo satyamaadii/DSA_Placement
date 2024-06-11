@@ -722,3 +722,4 @@ int findHeightRight(TreeNode* root){
 TC - O(LOGN * LOGN)
 SC - O(LOGN)
 
+LEFT - 10-14   35-39 lectures
