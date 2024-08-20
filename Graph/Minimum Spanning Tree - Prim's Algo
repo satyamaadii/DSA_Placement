@@ -1,0 +1,35 @@
+Spanning Tree - tree with N nodes & N-1 edges & all nodes are reachable form each other 
+Minimum Spanning Tree - tree with N nodes & N-1 edges and minimum edges weights & all nodes are reachable form each other 
+
+
+int spanningTree(int V, vector<vector<int>> adj[]){
+		priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;   // min heap with {wt, node}
+		vector<int> vis(V, 0);
+		pq.push({0, 0});
+		int sum = 0;
+    // O(E)
+		while (!pq.empty()) {
+      // O(LOG E)
+			auto it = pq.top();
+			pq.pop();
+			int node = it.second;
+			int wt = it.first;
+			if (vis[node] == 1) continue;
+			// if not visited then add it to the mst
+			vis[node] = 1;
+			sum += wt;
+      // O(E LOGE)
+			for (auto it : adj[node]) {
+				int adjNode = it[0];
+				int edW = it[1];
+				if (!vis[adjNode]) {
+					  pq.push({edW, adjNode});
+				}
+			}
+		}
+		return sum;
+	}
+
+Greedy is the intuition 
+TC - O(E LOG V) or E LOG E
+SC - O(V)
